@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nickolay/tauri-json-schema/refs/heads/main/tauri.conf.json",
+  "productName": "Notes",
+  "version": "0.0.0",
+  "identifier": "com.notes-app.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @notes-app/web build",
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "pnpm --filter @notes-app/web generate",
+    "frontendDist": "../web/.output/public"
+  },
+  "app": {
+    "title": "Notes - Markdown Vault",
+    "windows": [
+      {
+        "title": "Notes",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
