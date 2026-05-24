@@ -2,7 +2,7 @@
   "name": "markdown-notes-monorepo",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@11.0.9",
   "scripts": {
     "dev:web": "pnpm --filter @notes-app/web dev",
     "dev:desktop": "pnpm --filter @notes-app/desktop dev",
