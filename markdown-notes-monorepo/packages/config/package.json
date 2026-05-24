@@ -1,0 +1,10 @@
+{
+  "name": "@notes-app/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "scripts": {
+    "lint": "eslint ."
+  }
+}

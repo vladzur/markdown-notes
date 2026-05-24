@@ -1,0 +1,5 @@
+export { default as FolderTree } from './components/FolderTree/FolderTree.vue'
+export { default as MarkdownEditor } from './components/MarkdownEditor/MarkdownEditor.vue'
+export { default as VaultGuard } from './components/VaultGuard/VaultGuard.vue'
+export { default as AppHeader } from './components/AppHeader/AppHeader.vue'
+export { default as ConfirmDialog } from './components/ConfirmDialog/ConfirmDialog.vue'
