@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useVaultStore } from '@notes-app/core-logic'
 import { generateSalt } from '@notes-app/crypto'
+import VaultGuard from '@notes-app/ui/src/components/VaultGuard/VaultGuard.vue'
+import MarkdownEditor from '@notes-app/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
 
 definePageMeta({
   middleware: 'auth',
 })
 
 const vaultStore = useVaultStore()
-const vaultGuardRef = ref<InstanceType<typeof import('@notes-app/ui').VaultGuard> | null>(null)
+const vaultGuardRef = ref<InstanceType<typeof VaultGuard> | null>(null)
 const vaultContent = ref('')
 
 async function handleUnlock(password: string) {
@@ -22,20 +24,18 @@ async function handleUnlock(password: string) {
 </script>
 
 <template>
-  <NuxtLayout>
-    <VaultGuard
-      v-if="!vaultStore.isUnlocked"
-      ref="vaultGuardRef"
-      @unlock="handleUnlock"
-    />
-    <div v-else class="vault-content">
-      <div class="vault-content__header">
-        <h2>Bóveda Desbloqueada</h2>
-        <p>Las notas cifradas se muestran aquí. El contenido se descifra solo en RAM.</p>
-      </div>
-      <MarkdownEditor v-model="vaultContent" placeholder="Nota cifrada..." />
+  <VaultGuard
+    v-if="!vaultStore.isUnlocked"
+    ref="vaultGuardRef"
+    @unlock="handleUnlock"
+  />
+  <div v-else class="vault-content">
+    <div class="vault-content__header">
+      <h2>Bóveda Desbloqueada</h2>
+      <p>Las notas cifradas se muestran aquí. El contenido se descifra solo en RAM.</p>
     </div>
-  </NuxtLayout>
+    <MarkdownEditor v-model="vaultContent" placeholder="Nota cifrada..." />
+  </div>
 </template>
 
 <style scoped>

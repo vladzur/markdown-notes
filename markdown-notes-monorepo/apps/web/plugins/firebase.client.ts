@@ -1,4 +1,5 @@
-import { initializeFirebase, enableOfflinePersistence } from '@notes-app/firebase'
+import { initializeFirebase, enableOfflinePersistence, getFirebaseAuth, onAuthStateChanged } from '@notes-app/firebase'
+import { setAuthUser } from '~/composables/useAuth'
 
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
@@ -15,7 +16,11 @@ export default defineNuxtPlugin(async () => {
   try {
     await enableOfflinePersistence()
   } catch {
-    // La persistencia offline puede fallar en navegadores que no soportan IndexedDB
     console.warn('Persistencia offline de Firestore no disponible en este entorno.')
   }
+
+  // Sincronizar estado de autenticación de Firebase con el estado reactivo
+  onAuthStateChanged(getFirebaseAuth(), (fbUser) => {
+    setAuthUser(fbUser)
+  })
 })

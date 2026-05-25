@@ -1,8 +1,16 @@
+import { useAuth } from '~/composables/useAuth'
+
 /**
  * Middleware que redirige a /folders si el usuario ya inició sesión.
  */
 export default defineNuxtRouteMiddleware(() => {
-  // En entorno real: verificar Firebase Auth
-  // const auth = getFirebaseAuth()
-  // if (auth.currentUser) return navigateTo('/folders')
+  if (process.server) return
+
+  const { isAuthReady, isAuthenticated } = useAuth()
+
+  if (!isAuthReady.value) return
+
+  if (isAuthenticated.value) {
+    return navigateTo('/folders')
+  }
 })

@@ -1,10 +1,17 @@
+import { useAuth } from '~/composables/useAuth'
+
 /**
  * Middleware que redirige a /login si el usuario no está autenticado.
  */
 export default defineNuxtRouteMiddleware(() => {
-  // En entorno real: verificar Firebase Auth
-  // const auth = getFirebaseAuth()
-  // if (!auth.currentUser) return navigateTo('/login')
+  if (process.server) return
 
-  // Modo desarrollo: sin autenticación requerida por ahora
+  const { isAuthReady, isAuthenticated } = useAuth()
+
+  // Esperar a que Firebase resuelva el estado de autenticación
+  if (!isAuthReady.value) return
+
+  if (!isAuthenticated.value) {
+    return navigateTo('/login')
+  }
 })
