@@ -1,15 +1,5 @@
 <template>
-  <div class="auth-layout">
+  <div class="min-h-screen flex items-center justify-center bg-dark-bg">
     <slot />
   </div>
 </template>
-
-<style scoped>
-.auth-layout {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg, #f5f5f5);
-}
-</style>

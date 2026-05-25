@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import type { TreeNode } from '@notes-app/core-logic'
 import { ref } from 'vue'
+import { IconChevronRight, IconFolder, IconMarkdown } from '../../icons'
 
 const props = defineProps<{
   node: TreeNode
   currentFolderId: string | null
+  currentNoteId?: string | null
   depth: number
 }>()
 
 const emit = defineEmits<{
   select: [folderId: string]
+  selectNote: [noteId: string, folderId: string]
   createFolder: [parentId: string | null]
   renameFolder: [folderId: string, currentName: string]
   deleteFolder: [folderId: string]
@@ -21,118 +24,89 @@ function handleClick() {
   emit('select', props.node.folder.id)
 }
 
-function handleContextMenu(e: MouseEvent) {
-  e.preventDefault()
+function handleNoteClick(noteId: string) {
+  emit('selectNote', noteId, props.node.folder.id)
 }
 </script>
 
 <template>
-  <li class="tree-node">
+  <li>
+    <!-- Fila de carpeta -->
     <div
-      class="tree-node-row"
-      :class="{ 'tree-node-row--active': node.folder.id === currentFolderId }"
+      data-testid="folder-row"
+      class="flex items-center gap-1 py-1.5 pr-2 rounded cursor-pointer select-none transition-colors hover:bg-dark-surface/50"
+      :class="{ 'bg-brand-500/10 text-dark-text font-semibold': node.folder.id === currentFolderId }"
       :style="{ paddingLeft: `${depth * 20 + 8}px` }"
       @click="handleClick"
       @contextmenu.prevent="emit('createFolder', node.folder.id)"
     >
       <button
-        v-if="node.children.length > 0"
-        class="tree-toggle"
+        v-if="node.children.length > 0 || node.notes.length > 0"
+        data-testid="expand-toggle"
+        class="border-none bg-transparent cursor-pointer text-xs w-5 h-5 text-center p-0 text-dark-muted flex-shrink-0 flex items-center justify-center"
         @click.stop="isExpanded = !isExpanded"
       >
-        {{ isExpanded ? '▾' : '▸' }}
+        <IconChevronRight
+          class="transition-transform duration-200"
+          :class="{ 'rotate-90': isExpanded }"
+        />
       </button>
-      <span v-else class="tree-toggle tree-toggle--spacer"></span>
+      <span v-else class="inline-block w-5 flex-shrink-0" />
 
-      <span class="tree-node-name">{{ node.folder.name }}</span>
+      <IconFolder class="text-brand-500 flex-shrink-0" />
 
-      <span v-if="node.notes.length > 0" class="tree-node-badge">
+      <span
+        data-testid="folder-name"
+        class="flex-1 truncate text-sm text-dark-text"
+      >{{ node.folder.name }}</span>
+
+      <span
+        v-if="node.notes.length > 0"
+        data-testid="note-count"
+        class="text-[11px] text-dark-muted bg-dark-bg px-1.5 py-0 rounded-full min-w-[18px] text-center leading-[18px]"
+      >
         {{ node.notes.length }}
       </span>
     </div>
 
-    <ul v-if="isExpanded && node.children.length > 0" class="tree-children">
-      <FolderTreeNode
-        v-for="child in node.children"
-        :key="child.folder.id"
-        :node="child"
-        :current-folder-id="currentFolderId"
-        :depth="depth + 1"
-        @select="emit('select', $event)"
-        @create-folder="emit('createFolder', $event)"
-        @rename-folder="emit('renameFolder', $event[0], $event[1])"
-        @delete-folder="emit('deleteFolder', $event)"
-      />
-    </ul>
+    <!-- Hijos expandidos: subcarpetas + notas -->
+    <template v-if="isExpanded">
+      <!-- Subcarpetas -->
+      <ul v-if="node.children.length > 0" class="list-none m-0 p-0">
+        <FolderTreeNode
+          v-for="child in node.children"
+          :key="child.folder.id"
+          :node="child"
+          :current-folder-id="currentFolderId"
+          :current-note-id="currentNoteId"
+          :depth="depth + 1"
+          @select="emit('select', $event)"
+          @select-note="emit('selectNote', $event[0], $event[1])"
+          @create-folder="emit('createFolder', $event)"
+          @rename-folder="emit('renameFolder', $event[0], $event[1])"
+          @delete-folder="emit('deleteFolder', $event)"
+        />
+      </ul>
+
+      <!-- Notas dentro de esta carpeta -->
+      <ul v-if="node.notes.length > 0" class="list-none m-0 p-0">
+        <li
+          v-for="note in node.notes"
+          :key="note.id"
+          data-testid="note-row"
+          class="flex items-center gap-2 py-1.5 pr-2 rounded cursor-pointer select-none transition-colors hover:bg-dark-surface/50 text-dark-muted hover:text-dark-text"
+          :class="{ 'bg-brand-500/10 text-dark-text font-medium': note.id === currentNoteId }"
+          :style="{ paddingLeft: `${(depth + 1) * 20 + 8}px` }"
+          @click.stop="handleNoteClick(note.id)"
+        >
+          <span class="inline-block w-5 flex-shrink-0" />
+          <IconMarkdown class="text-xs opacity-50 flex-shrink-0" />
+          <span
+            data-testid="note-title"
+            class="flex-1 truncate text-sm"
+          >{{ note.title || 'Sin título' }}</span>
+        </li>
+      </ul>
+    </template>
   </li>
 </template>
-
-<style scoped>
-.tree-node {
-  list-style: none;
-}
-
-.tree-node-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 8px 6px 0;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.15s;
-  user-select: none;
-}
-
-.tree-node-row:hover {
-  background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
-}
-
-.tree-node-row--active {
-  background-color: var(--color-bg-active, rgba(59, 130, 246, 0.15));
-  font-weight: 600;
-}
-
-.tree-toggle {
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 12px;
-  width: 20px;
-  height: 20px;
-  text-align: center;
-  padding: 0;
-  color: inherit;
-  flex-shrink: 0;
-}
-
-.tree-toggle--spacer {
-  display: inline-block;
-  width: 20px;
-  flex-shrink: 0;
-}
-
-.tree-node-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 14px;
-}
-
-.tree-node-badge {
-  font-size: 11px;
-  color: var(--color-text-muted, #888);
-  min-width: 18px;
-  text-align: center;
-  background: var(--color-bg-muted, #eee);
-  border-radius: 10px;
-  padding: 0 6px;
-  line-height: 18px;
-}
-
-.tree-children {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-</style>

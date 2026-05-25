@@ -33,7 +33,7 @@ describe('FolderTree', () => {
     const wrapper = mount(FolderTree, {
       props: { nodes, currentFolderId: null },
     })
-    const names = wrapper.findAll('.tree-node-name')
+    const names = wrapper.findAll('[data-testid="folder-name"]')
     expect(names).toHaveLength(2)
     expect(names[0]!.text()).toBe('Proyectos')
     expect(names[1]!.text()).toBe('Personal')
@@ -44,7 +44,7 @@ describe('FolderTree', () => {
     const wrapper = mount(FolderTree, {
       props: { nodes, currentFolderId: null },
     })
-    await wrapper.find('.tree-node-row').trigger('click')
+    await wrapper.find('[data-testid="folder-row"]').trigger('click')
     expect(wrapper.emitted('select')).toBeTruthy()
     expect(wrapper.emitted('select')![0]).toEqual(['root-1'])
   })
@@ -57,9 +57,9 @@ describe('FolderTree', () => {
     const wrapper = mount(FolderTree, {
       props: { nodes, currentFolderId: 'active' },
     })
-    const rows = wrapper.findAll('.tree-node-row')
-    expect(rows[0]!.classes()).toContain('tree-node-row--active')
-    expect(rows[1]!.classes()).not.toContain('tree-node-row--active')
+    const rows = wrapper.findAll('[data-testid="folder-row"]')
+    expect(rows[0]!.classes()).toContain('bg-brand-500/10')
+    expect(rows[1]!.classes()).not.toContain('bg-brand-500/10')
   })
 
   it('should show note count badge', () => {
@@ -75,7 +75,7 @@ describe('FolderTree', () => {
     const wrapper = mount(FolderTree, {
       props: { nodes, currentFolderId: null },
     })
-    expect(wrapper.find('.tree-node-badge').text()).toBe('1')
+    expect(wrapper.find('[data-testid="note-count"]').text()).toBe('1')
   })
 
   it('should expand nested children by default', () => {
@@ -84,9 +84,65 @@ describe('FolderTree', () => {
     const wrapper = mount(FolderTree, {
       props: { nodes, currentFolderId: null },
     })
-    // Ambos niveles deben ser visibles
-    const names = wrapper.findAll('.tree-node-name')
+    const names = wrapper.findAll('[data-testid="folder-name"]')
     expect(names).toHaveLength(2)
     expect(names[1]!.text()).toBe('Hijo')
+  })
+
+  it('should render notes as children inside a folder', () => {
+    const nodes = [
+      makeNode(
+        { id: 'f-1', name: 'Proyectos' },
+        [],
+        [
+          { id: 'n-1', userId: 'u1', folderId: 'f-1', title: 'Nota importante', content: '# Hola', isEncrypted: false, updatedAt: '2026-01-01' },
+          { id: 'n-2', userId: 'u1', folderId: 'f-1', title: 'Otra nota', content: '', isEncrypted: false, updatedAt: '2026-01-02' },
+        ],
+      ),
+    ]
+    const wrapper = mount(FolderTree, {
+      props: { nodes, currentFolderId: 'f-1' },
+    })
+    const noteTitles = wrapper.findAll('[data-testid="note-title"]')
+    expect(noteTitles).toHaveLength(2)
+    expect(noteTitles[0]!.text()).toBe('Nota importante')
+    expect(noteTitles[1]!.text()).toBe('Otra nota')
+  })
+
+  it('should emit selectNote when clicking a note', async () => {
+    const nodes = [
+      makeNode(
+        { id: 'f-1', name: 'Proyectos' },
+        [],
+        [
+          { id: 'n-1', userId: 'u1', folderId: 'f-1', title: 'Mi nota', content: '', isEncrypted: false, updatedAt: '' },
+        ],
+      ),
+    ]
+    const wrapper = mount(FolderTree, {
+      props: { nodes, currentFolderId: 'f-1' },
+    })
+    await wrapper.find('[data-testid="note-row"]').trigger('click')
+    expect(wrapper.emitted('selectNote')).toBeTruthy()
+    expect(wrapper.emitted('selectNote')![0]).toEqual(['n-1', 'f-1'])
+  })
+
+  it('should mark current note as active', () => {
+    const nodes = [
+      makeNode(
+        { id: 'f-1', name: 'Proyectos' },
+        [],
+        [
+          { id: 'n-1', userId: 'u1', folderId: 'f-1', title: 'Activa', content: '', isEncrypted: false, updatedAt: '' },
+          { id: 'n-2', userId: 'u1', folderId: 'f-1', title: 'Inactiva', content: '', isEncrypted: false, updatedAt: '' },
+        ],
+      ),
+    ]
+    const wrapper = mount(FolderTree, {
+      props: { nodes, currentFolderId: 'f-1', currentNoteId: 'n-1' },
+    })
+    const rows = wrapper.findAll('[data-testid="note-row"]')
+    expect(rows[0]!.classes()).toContain('bg-brand-500/10')
+    expect(rows[1]!.classes()).not.toContain('bg-brand-500/10')
   })
 })

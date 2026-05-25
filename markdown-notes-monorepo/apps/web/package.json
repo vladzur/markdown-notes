@@ -14,19 +14,21 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
     "@notes-app/core-logic": "workspace:*",
     "@notes-app/crypto": "workspace:*",
     "@notes-app/firebase": "workspace:*",
     "@notes-app/ui": "workspace:*",
-    "pinia": "^2.3.0",
     "nuxt": "^3.15.0",
+    "pinia": "^2.3.0",
     "vue": "^3.5.0",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@vue/test-utils": "^2.4.0",
-    "happy-dom": "^15.0.0"
+    "happy-dom": "^15.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
   }
 }
