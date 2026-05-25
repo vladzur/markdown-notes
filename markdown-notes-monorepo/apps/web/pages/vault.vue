@@ -8,6 +8,7 @@ definePageMeta({
 
 const vaultStore = useVaultStore()
 const vaultGuardRef = ref<InstanceType<typeof import('@notes-app/ui').VaultGuard> | null>(null)
+const vaultContent = ref('')
 
 async function handleUnlock(password: string) {
   // En entorno real: la salt se obtiene del perfil del usuario en Firestore
@@ -32,7 +33,7 @@ async function handleUnlock(password: string) {
         <h2>Bóveda Desbloqueada</h2>
         <p>Las notas cifradas se muestran aquí. El contenido se descifra solo en RAM.</p>
       </div>
-      <MarkdownEditor v-model="''" placeholder="Nota cifrada..." />
+      <MarkdownEditor v-model="vaultContent" placeholder="Nota cifrada..." />
     </div>
   </NuxtLayout>
 </template>
