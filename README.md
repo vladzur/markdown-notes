@@ -29,7 +29,7 @@ This project is structured as a monorepo managed by **pnpm**, optimizing depende
 ## Repository Structure
 
 ```text
-markdown-notes-monorepo/
+.
 ├── pnpm-workspace.yaml
 ├── package.json                # Global scripts and shared devDependencies
 ├── .npmrc                      # Security and hoisting rules for pnpm
@@ -84,7 +84,7 @@ Required variables:
 
 ```bash
 git clone https://github.com/your-username/markdown-notes-monorepo.git
-cd markdown-notes-monorepo
+cd my_notes
 pnpm install
 ```
 
@@ -146,9 +146,9 @@ Current test coverage: **59 tests** across 4 packages (crypto, firebase, core-lo
 
 ## Documentation
 
-- [Especificación de Requerimientos Técnicos (SRS)](Especificación%20de%20Requerimientos%20Técnicos%20(SRS).md)
-- [Monorepo Structure](monorepo_structure.md)
-- [CHANGELOG](markdown-notes-monorepo/CHANGELOG.md)
+- [Especificación de Requerimientos Técnicos (SRS)](docs/Especificación%20de%20Requerimientos%20Técnicos%20(SRS).md)
+- [Monorepo Structure](docs/architecture.md)
+- [CHANGELOG](CHANGELOG.md)
 
 ## License
 
