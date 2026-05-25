@@ -1,5 +1,6 @@
 # Dependencias
 node_modules/
+.pnpm-store/
 
 # Build outputs
 dist/
@@ -17,6 +18,7 @@ ios/
 # Environment
 .env
 .env.*
+.env.*.local
 !.env.example
 
 # IDE
