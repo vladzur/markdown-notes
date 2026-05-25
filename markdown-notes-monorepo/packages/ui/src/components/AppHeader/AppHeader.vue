@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { IconBars, IconLock, IconLockOpen } from '../../icons'
+
 defineProps<{
   breadcrumbs?: { id: string; name: string }[]
   isVaultUnlocked?: boolean
@@ -11,79 +13,36 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <header class="app-header">
-    <div class="app-header__left">
-      <button class="app-header__icon-btn" title="Menú lateral" @click="emit('toggle-sidebar')">
-        ☰
-      </button>
-    </div>
-
-    <div class="app-header__center">
-      <span class="app-header__title">Notes</span>
-    </div>
-
-    <div class="app-header__right">
+  <header class="h-16 border-b border-dark-border flex items-center justify-between px-4 lg:px-6 bg-dark-bg shrink-0">
+    <div class="flex items-center gap-4">
       <button
-        class="app-header__icon-btn app-header__vault-btn"
-        :class="{ 'app-header__vault-btn--unlocked': isVaultUnlocked }"
+        class="lg:hidden p-1.5 text-dark-muted hover:text-white transition-colors rounded"
+        title="Menú lateral"
+        @click="emit('toggle-sidebar')"
+      >
+        <IconBars />
+      </button>
+      <div v-if="breadcrumbs && breadcrumbs.length > 0" class="text-sm text-dark-muted flex items-center gap-2">
+        <template v-for="(crumb, i) in breadcrumbs" :key="crumb.id">
+          <span v-if="i > 0" class="text-[10px] opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
+          <span :class="{ 'text-white font-medium': i === breadcrumbs.length - 1 }">{{ crumb.name }}</span>
+        </template>
+      </div>
+      <span v-else class="text-base font-bold text-dark-text">Notes</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button
+        class="p-1.5 text-dark-muted hover:text-white transition-colors rounded"
+        :class="{ 'text-emerald-400': isVaultUnlocked }"
         title="Bóveda"
         @click="emit('toggle-vault')"
       >
-        {{ isVaultUnlocked ? '🔓' : '🔒' }}
+        <IconLockOpen v-if="isVaultUnlocked" />
+        <IconLock v-else />
       </button>
     </div>
   </header>
 </template>
-
-<style scoped>
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 48px;
-  padding: 0 12px;
-  background: var(--color-surface, #ffffff);
-  border-bottom: 1px solid var(--color-border, #e5e5e5);
-}
-
-.app-header__left,
-.app-header__right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 80px;
-}
-
-.app-header__right {
-  justify-content: flex-end;
-}
-
-.app-header__center {
-  flex: 1;
-  text-align: center;
-}
-
-.app-header__title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text, #1a1a1a);
-}
-
-.app-header__icon-btn {
-  border: none;
-  background: none;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background 0.15s;
-}
-
-.app-header__icon-btn:hover {
-  background: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
-}
-
-.app-header__vault-btn--unlocked {
-  color: var(--color-primary, #3b82f6);
-}
-</style>

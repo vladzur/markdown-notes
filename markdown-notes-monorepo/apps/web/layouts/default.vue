@@ -1,24 +1,66 @@
 <script setup lang="ts">
-import { useFolderStore } from '@notes-app/core-logic'
+import { useFolderStore, useVaultStore } from '@notes-app/core-logic'
 import { getUserFolders, getUserNotes } from '@notes-app/firebase'
 import { useAuth, logout } from '~/composables/useAuth'
-import AppHeader from '@notes-app/ui/src/components/AppHeader/AppHeader.vue'
 import FolderTree from '@notes-app/ui/src/components/FolderTree/FolderTree.vue'
 import ConfirmDialog from '@notes-app/ui/src/components/ConfirmDialog/ConfirmDialog.vue'
+import {
+  IconPenNib,
+  IconFolderPlus,
+  IconSearch,
+  IconXmark,
+  IconBars,
+  IconShareNodes,
+  IconGear,
+  IconLock,
+  IconLockOpen,
+  IconChevronRight,
+} from '@notes-app/ui/src/icons'
 
 const folderStore = useFolderStore()
+const vaultStore = useVaultStore()
 const { user, isAuthenticated } = useAuth()
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 const showConfirmDelete = ref(false)
 const folderToDelete = ref<string | null>(null)
+
+const route = useRoute()
+
+// Nota seleccionada desde query param
+const currentNoteId = computed(() => (route.query.note as string) || null)
+
+// Breadcrumbs computados
+const breadcrumbs = computed(() => {
+  const crumbs: { id: string; name: string }[] = []
+  const folderId = route.params.folderId as string | undefined
+  if (folderId) {
+    const folder = folderStore.folders.find(f => f.id === folderId)
+    if (folder) {
+      crumbs.push({ id: folder.id, name: folder.name })
+    }
+  }
+  if (currentNoteId.value) {
+    const note = folderStore.notes.find(n => n.id === currentNoteId.value)
+    if (note) {
+      crumbs.push({ id: note.id, name: note.title || 'Sin título' })
+    }
+  }
+  return crumbs
+})
 
 function handleSelectFolder(folderId: string) {
   folderStore.selectFolder(folderId)
   navigateTo(`/folders/${folderId}`)
+  isSidebarOpen.value = false
+}
+
+function handleSelectNote(noteId: string, folderId: string) {
+  folderStore.selectFolder(folderId)
+  navigateTo(`/folders/${folderId}?note=${noteId}`)
+  isSidebarOpen.value = false
 }
 
 function handleCreateFolder(parentId: string | null) {
-  // TODO: implementar diálogo de creación una vez que Firebase esté conectado
   const name = window.prompt('Nombre de la carpeta:')
   if (name && name.trim()) {
     const folder = {
@@ -32,7 +74,6 @@ function handleCreateFolder(parentId: string | null) {
       id: `local-${Date.now()}`,
       ...folder,
     })
-    // TODO: persistir en Firestore en segundo plano
   }
 }
 
@@ -44,10 +85,13 @@ function handleDeleteFolder(folderId: string) {
 function confirmDelete() {
   if (folderToDelete.value) {
     folderStore.removeFolder(folderToDelete.value)
-    // TODO: eliminar de Firestore en segundo plano
   }
   showConfirmDelete.value = false
   folderToDelete.value = null
+}
+
+function handleVaultClick() {
+  navigateTo('/vault')
 }
 
 async function handleLogout() {
@@ -55,7 +99,6 @@ async function handleLogout() {
   await navigateTo('/login')
 }
 
-// Cargar datos reales de Firestore cuando el usuario está autenticado
 onMounted(async () => {
   if (isAuthenticated.value && user?.uid && folderStore.folders.length === 0) {
     try {
@@ -65,160 +108,162 @@ onMounted(async () => {
         folderStore.setData(folders, notes)
       }
     } catch {
-      // Silencioso: la app funciona en modo local incluso sin Firestore
+      // Silencioso
     }
   }
 })
 </script>
 
 <template>
-  <div class="app-layout">
-    <AppHeader
-      :is-vault-unlocked="false"
-      @toggle-sidebar="isSidebarOpen = !isSidebarOpen"
-      @toggle-vault="navigateTo('/vault')"
+  <div class="h-screen flex overflow-hidden bg-dark-bg text-dark-text font-sans antialiased">
+    <!-- Mobile Sidebar Overlay -->
+    <div
+      v-if="isSidebarOpen"
+      class="fixed inset-0 bg-black/50 z-20 lg:hidden"
+      @click="isSidebarOpen = false"
     />
 
-    <div class="app-body">
-      <aside class="app-sidebar" :class="{ 'app-sidebar--collapsed': !isSidebarOpen }">
-        <div class="sidebar-header">
-          <span class="sidebar-title">Carpetas</span>
+    <!-- Sidebar -->
+    <aside
+      class="fixed lg:relative z-30 h-full w-72 flex-shrink-0 bg-dark-sidebar border-r border-dark-border flex flex-col transition-transform duration-300 ease-in-out"
+      :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    >
+      <!-- Sidebar Header -->
+      <div class="h-16 flex items-center justify-between px-4 border-b border-dark-border">
+        <div class="flex items-center gap-2 font-semibold text-lg text-brand-500">
+          <IconPenNib />
+          <span>NexusNotes</span>
+        </div>
+        <div class="flex gap-2">
           <button
-            class="sidebar-new-btn"
+            class="text-dark-muted hover:text-white transition-colors p-1"
             title="Nueva carpeta"
             @click="handleCreateFolder(null)"
           >
-            + Nueva
+            <IconFolderPlus />
+          </button>
+          <button class="text-dark-muted hover:text-white transition-colors p-1" title="Buscar">
+            <IconSearch />
+          </button>
+          <button
+            class="lg:hidden text-dark-muted hover:text-white transition-colors p-1 ml-2"
+            @click="isSidebarOpen = false"
+          >
+            <IconXmark />
           </button>
         </div>
+      </div>
+
+      <!-- Sidebar Content: Folder Tree -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-1">
         <FolderTree
           :nodes="folderStore.tree"
           :current-folder-id="folderStore.currentFolderId"
+          :current-note-id="currentNoteId"
           @select="handleSelectFolder"
+          @select-note="handleSelectNote"
           @create-folder="handleCreateFolder"
           @delete-folder="handleDeleteFolder"
         />
-        <div class="sidebar-footer">
-          <span v-if="user?.email" class="sidebar-user">{{ user.email }}</span>
-          <button class="sidebar-logout-btn" @click="handleLogout">
-            Salir
+
+        <!-- Secure Area -->
+        <div class="pt-4 pb-2">
+          <div class="px-2 text-xs font-semibold text-dark-border uppercase tracking-wider mb-1">
+            Secure Area
+          </div>
+          <button
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-sm text-dark-muted hover:bg-dark-surface hover:text-rose-400 rounded transition-colors group"
+            :class="{ 'hover:text-emerald-400': vaultStore.isUnlocked }"
+            @click="handleVaultClick"
+          >
+            <IconLockOpen
+              v-if="vaultStore.isUnlocked"
+              class="text-emerald-500"
+            />
+            <IconLock
+              v-else
+              class="text-rose-500 group-hover:animate-pulse"
+            />
+            <span class="truncate font-medium">Private Vault</span>
+            <span
+              v-if="vaultStore.isUnlocked"
+              class="ml-auto text-[10px] bg-emerald-900/30 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30"
+            >
+              Unlocked
+            </span>
+            <span
+              v-else
+              class="ml-auto text-[10px] bg-dark-bg px-1.5 py-0.5 rounded border border-dark-border"
+            >
+              Locked
+            </span>
           </button>
         </div>
-      </aside>
+      </div>
 
-      <main class="app-main">
-        <slot />
-      </main>
-    </div>
+      <!-- Sidebar Footer -->
+      <div class="h-14 border-t border-dark-border flex items-center px-4 justify-between bg-dark-bg/50">
+        <div class="flex items-center gap-2 text-sm text-dark-muted">
+          <div class="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-bold">
+            {{ user?.email?.charAt(0).toUpperCase() ?? '?' }}
+          </div>
+          <span class="truncate max-w-[120px]">{{ user?.email ?? 'DevUser' }}</span>
+        </div>
+        <button
+          class="text-dark-muted hover:text-white transition-colors"
+          title="Cerrar sesión"
+          @click="handleLogout"
+        >
+          <IconGear />
+        </button>
+      </div>
+    </aside>
 
-    <ConfirmDialog
-      :open="showConfirmDelete"
-      title="Eliminar carpeta"
-      message="¿Estás seguro? Las notas dentro de esta carpeta también se eliminarán."
-      @confirm="confirmDelete"
-      @cancel="showConfirmDelete = false"
-    />
+    <!-- Main Area -->
+    <main class="flex-1 flex flex-col relative w-full lg:w-auto min-w-0">
+      <!-- Top Toolbar -->
+      <header class="h-16 border-b border-dark-border flex items-center justify-between px-4 lg:px-6 bg-dark-bg shrink-0">
+        <div class="flex items-center gap-4">
+          <button
+            class="lg:hidden p-1.5 text-dark-muted hover:text-white transition-colors rounded"
+            @click="isSidebarOpen = true"
+          >
+            <IconBars />
+          </button>
+          <div class="text-sm text-dark-muted flex items-center gap-2">
+            <template v-for="(crumb, i) in breadcrumbs" :key="crumb.id">
+              <IconChevronRight v-if="i > 0" class="text-[10px] opacity-50" />
+              <span :class="{ 'text-white font-medium': i === breadcrumbs.length - 1 }">
+                {{ crumb.name }}
+              </span>
+            </template>
+            <span v-if="breadcrumbs.length === 0" class="text-white font-medium">
+              {{ folderStore.currentFolderId ? 'Notes' : 'Selecciona una carpeta' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-dark-muted bg-dark-surface px-2 py-1 rounded hidden sm:block">
+            Saved locally
+          </span>
+          <button class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm shadow-brand-500/20 flex items-center gap-2">
+            <IconShareNodes />
+            <span class="hidden sm:inline">Share</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <slot />
+
+      <ConfirmDialog
+        :open="showConfirmDelete"
+        title="Eliminar carpeta"
+        message="¿Estás seguro? Las notas dentro de esta carpeta también se eliminarán."
+        @confirm="confirmDelete"
+        @cancel="showConfirmDelete = false"
+      />
+    </main>
   </div>
 </template>
-
-<style scoped>
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.app-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.app-sidebar {
-  width: 260px;
-  min-width: 0;
-  border-right: 1px solid var(--color-border, #e5e5e5);
-  background: var(--color-surface, #ffffff);
-  transition: width 0.2s ease;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.app-sidebar--collapsed {
-  width: 0;
-  border-right: none;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px 8px;
-}
-
-.sidebar-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-text-muted, #888);
-}
-
-.sidebar-new-btn {
-  border: 1px solid var(--color-border, #ddd);
-  background: var(--color-surface, #fff);
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--color-primary, #3b82f6);
-  white-space: nowrap;
-}
-
-.sidebar-new-btn:hover {
-  background: var(--color-bg, #f5f5f5);
-}
-
-.sidebar-footer {
-  margin-top: auto;
-  padding: 10px 16px;
-  border-top: 1px solid var(--color-border, #e5e5e5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.sidebar-user {
-  font-size: 12px;
-  color: var(--color-text-muted, #888);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sidebar-logout-btn {
-  border: none;
-  background: none;
-  padding: 2px 6px;
-  font-size: 12px;
-  color: var(--color-error, #ef4444);
-  cursor: pointer;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-.sidebar-logout-btn:hover {
-  background: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
-}
-
-.app-main {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-</style>

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import VaultGuard from '../components/VaultGuard/VaultGuard.vue'
 
@@ -34,13 +34,13 @@ describe('VaultGuard', () => {
 
   it('should show error via showError method', async () => {
     const wrapper = mount(VaultGuard)
-    expect(wrapper.find('.vault-guard__error').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="vault-error"]').exists()).toBe(false)
 
     // @ts-expect-error -- método expuesto por defineExpose
     wrapper.vm.showError()
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('.vault-guard__error').exists()).toBe(true)
-    expect(wrapper.find('.vault-guard__error').text()).toContain('incorrecta')
+    expect(wrapper.find('[data-testid="vault-error"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="vault-error"]').text()).toContain('incorrecta')
   })
 })

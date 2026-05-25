@@ -16,24 +16,15 @@ const isLoading = ref(false)
 
 const isLogin = computed(() => mode.value === 'login')
 
-async function handleLogin() {
+async function handleSubmit() {
   isLoading.value = true
   error.value = ''
   try {
-    await loginWithEmail(email.value, password.value)
-    await navigateTo('/folders')
-  } catch (err: any) {
-    error.value = mapAuthError(err.code)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function handleRegister() {
-  isLoading.value = true
-  error.value = ''
-  try {
-    await registerWithEmail(email.value, password.value)
+    if (isLogin.value) {
+      await loginWithEmail(email.value, password.value)
+    } else {
+      await registerWithEmail(email.value, password.value)
+    }
     await navigateTo('/folders')
   } catch (err: any) {
     error.value = mapAuthError(err.code)
@@ -74,19 +65,19 @@ function mapAuthError(code: string): string {
 </script>
 
 <template>
-  <div class="login-card">
-    <h1 class="login-title">Notes</h1>
-    <p class="login-subtitle">Gestión de notas Markdown cifradas</p>
+  <div class="bg-dark-sidebar border border-dark-border rounded-xl shadow-2xl p-10 max-w-sm w-full text-center">
+    <h1 class="text-3xl font-extrabold text-white mb-1">Notes</h1>
+    <p class="text-sm text-dark-muted mb-7">Gestión de notas Markdown cifradas</p>
 
     <!-- Spinner mientras se resuelve la sesión persistida -->
-    <div v-if="!isAuthReady" class="login-loading">Verificando sesión...</div>
+    <div v-if="!isAuthReady" class="text-dark-muted text-sm py-5">Verificando sesión...</div>
 
     <template v-else>
-      <form class="login-form" @submit.prevent="isLogin ? handleLogin() : handleRegister()">
+      <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
         <input
           v-model="email"
           type="email"
-          class="login-input"
+          class="w-full bg-dark-bg border border-dark-border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-dark-border"
           placeholder="Correo electrónico"
           required
           autocomplete="email"
@@ -94,25 +85,35 @@ function mapAuthError(code: string): string {
         <input
           v-model="password"
           type="password"
-          class="login-input"
+          class="w-full bg-dark-bg border border-dark-border rounded-lg py-2.5 px-4 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-dark-border"
           placeholder="Contraseña"
           required
           autocomplete="current-password"
         />
 
-        <p v-if="error" class="login-error">{{ error }}</p>
+        <p v-if="error" class="text-red-400 text-sm">{{ error }}</p>
 
-        <button type="submit" class="login-btn" :disabled="isLoading">
+        <button
+          type="submit"
+          class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          :disabled="isLoading"
+        >
           {{ isLoading ? 'Procesando...' : (isLogin ? 'Iniciar sesión' : 'Crear cuenta') }}
         </button>
       </form>
 
-      <div class="login-divider">
-        <span class="login-divider__text">o</span>
+      <div class="flex items-center my-5">
+        <span class="flex-1 border-t border-dark-border" />
+        <span class="px-3 text-xs text-dark-muted">o</span>
+        <span class="flex-1 border-t border-dark-border" />
       </div>
 
-      <button class="login-google-btn" :disabled="isLoading" @click="handleGoogleLogin">
-        <svg class="login-google-btn__icon" viewBox="0 0 24 24" width="18" height="18">
+      <button
+        class="w-full flex items-center justify-center gap-2.5 py-2.5 bg-dark-bg border border-dark-border text-dark-text rounded-lg text-sm font-medium hover:bg-dark-surface transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="isLoading"
+        @click="handleGoogleLogin"
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -121,148 +122,16 @@ function mapAuthError(code: string): string {
         Iniciar sesión con Google
       </button>
 
-      <p class="login-toggle">
+      <p class="mt-5 text-sm text-dark-muted">
         {{ isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
-        <button type="button" class="login-toggle__link" @click="mode = isLogin ? 'register' : 'login'">
+        <button
+          type="button"
+          class="bg-transparent border-none text-brand-500 font-semibold cursor-pointer p-0 underline hover:text-brand-400"
+          @click="mode = isLogin ? 'register' : 'login'"
+        >
           {{ isLogin ? 'Regístrate' : 'Inicia sesión' }}
         </button>
       </p>
     </template>
   </div>
 </template>
-
-<style scoped>
-.login-card {
-  background: var(--color-surface, #ffffff);
-  border-radius: 12px;
-  padding: 40px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  text-align: center;
-}
-
-.login-title {
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 0 4px;
-}
-
-.login-subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted, #666);
-  margin: 0 0 28px;
-}
-
-.login-loading {
-  color: var(--color-text-muted, #888);
-  font-size: 14px;
-  padding: 20px 0;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.login-input {
-  padding: 10px 14px;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 6px;
-  font-size: 16px;
-  outline: none;
-}
-
-.login-input:focus {
-  border-color: var(--color-primary, #3b82f6);
-}
-
-.login-error {
-  color: var(--color-error, #ef4444);
-  font-size: 13px;
-  margin: 0;
-}
-
-.login-btn {
-  padding: 10px;
-  background: var(--color-primary, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 4px;
-}
-
-.login-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.login-divider {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.login-divider::before,
-.login-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--color-border, #ddd);
-}
-
-.login-divider__text {
-  padding: 0 12px;
-  font-size: 13px;
-  color: var(--color-text-muted, #888);
-}
-
-.login-google-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px;
-  background: var(--color-surface, #ffffff);
-  color: var(--color-text, #333);
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.login-google-btn:hover {
-  background: var(--color-bg, #f5f5f5);
-}
-
-.login-google-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.login-google-btn__icon {
-  flex-shrink: 0;
-}
-
-.login-toggle {
-  margin: 20px 0 0;
-  font-size: 14px;
-  color: var(--color-text-muted, #666);
-}
-
-.login-toggle__link {
-  background: none;
-  border: none;
-  color: var(--color-primary, #3b82f6);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-</style>

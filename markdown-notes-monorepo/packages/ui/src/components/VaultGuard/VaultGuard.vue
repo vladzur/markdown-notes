@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { IconShieldHalved, IconKey, IconSpinner } from '../../icons'
 
 const emit = defineEmits<{
   unlock: [password: string]
@@ -31,114 +32,50 @@ defineExpose({ showError })
 </script>
 
 <template>
-  <div class="vault-guard">
-    <div class="vault-guard__card">
-      <h2 class="vault-guard__title">Bóveda Privada</h2>
-      <p class="vault-guard__description">
+  <div class="flex items-center justify-center h-full bg-dark-bg">
+    <div class="bg-dark-sidebar border border-dark-border rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
+      <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+        <IconShieldHalved class="text-rose-500 text-2xl" />
+      </div>
+      <h2 class="text-xl font-bold text-white mb-2">Bóveda Privada</h2>
+      <p class="text-sm text-dark-muted mb-6">
         Ingresa la contraseña maestra para desbloquear tus notas cifradas.
       </p>
 
-      <form class="vault-guard__form" @submit.prevent="handleSubmit">
-        <input
-          v-model="password"
-          type="password"
-          class="vault-guard__input"
-          :class="{ 'vault-guard__input--error': error }"
-          placeholder="Contraseña maestra"
-          autocomplete="off"
-          :disabled="isLoading"
-          @input="handleInput"
-        />
-        <p v-if="error" class="vault-guard__error">
+      <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
+        <div class="relative">
+          <IconKey class="absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted" />
+          <input
+            v-model="password"
+            type="password"
+            class="w-full bg-dark-bg border rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-dark-border"
+            :class="error ? 'border-rose-500' : 'border-dark-border'"
+            placeholder="Contraseña maestra"
+            autocomplete="off"
+            :disabled="isLoading"
+            @input="handleInput"
+          />
+        </div>
+        <p
+          v-if="error"
+          data-testid="vault-error"
+          class="text-rose-400 text-xs"
+        >
           Contraseña incorrecta. Intenta de nuevo.
         </p>
         <button
           type="submit"
-          class="vault-guard__button"
+          class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors text-sm font-medium shadow-lg shadow-rose-900/50 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
           :disabled="!password || isLoading"
         >
-          {{ isLoading ? 'Desbloqueando...' : 'Desbloquear' }}
+          <IconSpinner v-if="isLoading" />
+          <span>{{ isLoading ? 'Desbloqueando...' : 'Desbloquear' }}</span>
         </button>
       </form>
+
+      <p class="text-[10px] text-dark-muted uppercase tracking-widest mt-6">
+        Client-Side AES-GCM Encryption
+      </p>
     </div>
   </div>
 </template>
-
-<style scoped>
-.vault-guard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  background: var(--color-bg, #f5f5f5);
-}
-
-.vault-guard__card {
-  background: var(--color-surface, #ffffff);
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  text-align: center;
-}
-
-.vault-guard__title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  color: var(--color-text, #1a1a1a);
-}
-
-.vault-guard__description {
-  font-size: 14px;
-  color: var(--color-text-muted, #666);
-  margin: 0 0 24px;
-}
-
-.vault-guard__form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.vault-guard__input {
-  padding: 10px 14px;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 6px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.vault-guard__input:focus {
-  border-color: var(--color-primary, #3b82f6);
-}
-
-.vault-guard__input--error {
-  border-color: var(--color-error, #ef4444);
-}
-
-.vault-guard__error {
-  color: var(--color-error, #ef4444);
-  font-size: 13px;
-  margin: 0;
-}
-
-.vault-guard__button {
-  padding: 10px;
-  background: var(--color-primary, #3b82f6);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.vault-guard__button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>
