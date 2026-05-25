@@ -22,6 +22,18 @@ const mocks = vi.hoisted(() => ({
   connectAuthEmulator: vi.fn(),
   connectFirestoreEmulator: vi.fn(),
   enableIndexedDbPersistence: vi.fn(),
+  signInWithEmailAndPassword: vi.fn(),
+  createUserWithEmailAndPassword: vi.fn(),
+  signInWithPopup: vi.fn(),
+  signOut: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  collection: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  getDocs: vi.fn(),
+  addDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  doc: vi.fn(),
 }))
 
 vi.mock('firebase/app', () => ({
@@ -31,12 +43,24 @@ vi.mock('firebase/app', () => ({
 vi.mock('firebase/auth', () => ({
   getAuth: mocks.getAuth,
   connectAuthEmulator: mocks.connectAuthEmulator,
+  signInWithEmailAndPassword: mocks.signInWithEmailAndPassword,
+  createUserWithEmailAndPassword: mocks.createUserWithEmailAndPassword,
+  signInWithPopup: mocks.signInWithPopup,
+  signOut: mocks.signOut,
+  GoogleAuthProvider: mocks.GoogleAuthProvider,
 }))
 
 vi.mock('firebase/firestore', () => ({
   getFirestore: mocks.getFirestore,
   connectFirestoreEmulator: mocks.connectFirestoreEmulator,
   enableIndexedDbPersistence: mocks.enableIndexedDbPersistence,
+  collection: mocks.collection,
+  query: mocks.query,
+  where: mocks.where,
+  getDocs: mocks.getDocs,
+  addDoc: mocks.addDoc,
+  deleteDoc: mocks.deleteDoc,
+  doc: mocks.doc,
 }))
 
 describe('initializeFirebase', () => {
@@ -128,5 +152,122 @@ describe('getters', () => {
     expect(getFirebaseAuth()).toBe(mockAuth)
     expect(getFirebaseDb()).toBe(mockDb)
     expect(getFirebaseApp()).toBe(mockApp)
+  })
+})
+
+describe('auth helpers', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    mocks.initializeApp.mockReturnValue(mockApp)
+    mocks.getAuth.mockReturnValue(mockAuth)
+    mocks.getFirestore.mockReturnValue(mockDb)
+  })
+
+  it('signUpWithEmail should call createUserWithEmailAndPassword', async () => {
+    mocks.createUserWithEmailAndPassword.mockResolvedValue({ user: { uid: '123' } })
+    const { initializeFirebase, signUpWithEmail } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await signUpWithEmail('a@b.com', '123456')
+    expect(mocks.createUserWithEmailAndPassword).toHaveBeenCalledWith(mockAuth, 'a@b.com', '123456')
+  })
+
+  it('signInWithEmail should call signInWithEmailAndPassword', async () => {
+    mocks.signInWithEmailAndPassword.mockResolvedValue({ user: { uid: '123' } })
+    const { initializeFirebase, signInWithEmail } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await signInWithEmail('a@b.com', '123456')
+    expect(mocks.signInWithEmailAndPassword).toHaveBeenCalledWith(mockAuth, 'a@b.com', '123456')
+  })
+
+  it('signInWithGoogle should call signInWithPopup with GoogleAuthProvider', async () => {
+    const mockProvider = { name: 'google-provider' }
+    mocks.GoogleAuthProvider.mockReturnValue(mockProvider)
+    mocks.signInWithPopup.mockResolvedValue({ user: { uid: '456' } })
+    const { initializeFirebase, signInWithGoogle } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await signInWithGoogle()
+    expect(mocks.GoogleAuthProvider).toHaveBeenCalled()
+    expect(mocks.signInWithPopup).toHaveBeenCalledWith(mockAuth, mockProvider)
+  })
+
+  it('signOutUser should call signOut', async () => {
+    mocks.signOut.mockResolvedValue(undefined)
+    const { initializeFirebase, signOutUser } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await signOutUser()
+    expect(mocks.signOut).toHaveBeenCalledWith(mockAuth)
+  })
+})
+
+describe('firestore helpers', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    mocks.initializeApp.mockReturnValue(mockApp)
+    mocks.getAuth.mockReturnValue(mockAuth)
+    mocks.getFirestore.mockReturnValue(mockDb)
+  })
+
+  it('getUserFolders should query by userId', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] })
+    mocks.collection.mockReturnValue('folders-collection')
+    mocks.where.mockReturnValue('where-clause')
+    mocks.query.mockReturnValue('query-object')
+    const { initializeFirebase, getUserFolders } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await getUserFolders('user-1')
+    expect(mocks.collection).toHaveBeenCalledWith(mockDb, 'folders')
+    expect(mocks.where).toHaveBeenCalledWith('userId', '==', 'user-1')
+    expect(mocks.query).toHaveBeenCalledWith('folders-collection', 'where-clause')
+    expect(mocks.getDocs).toHaveBeenCalledWith('query-object')
+  })
+
+  it('getUserNotes should query by userId', async () => {
+    mocks.getDocs.mockResolvedValue({ docs: [] })
+    mocks.collection.mockReturnValue('notes-collection')
+    mocks.where.mockReturnValue('where-clause')
+    mocks.query.mockReturnValue('query-object')
+    const { initializeFirebase, getUserNotes } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await getUserNotes('user-1')
+    expect(mocks.collection).toHaveBeenCalledWith(mockDb, 'notes')
+    expect(mocks.where).toHaveBeenCalledWith('userId', '==', 'user-1')
+  })
+
+  it('createFolderDoc should call addDoc and return id', async () => {
+    mocks.addDoc.mockResolvedValue({ id: 'firestore-id' })
+    mocks.collection.mockReturnValue('folders-collection')
+    const { initializeFirebase, createFolderDoc } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    const id = await createFolderDoc({
+      userId: 'user-1',
+      name: 'Test',
+      parentId: null,
+      isPrivateVault: false,
+      createdAt: '2026-01-01',
+    })
+    expect(id).toBe('firestore-id')
+    expect(mocks.addDoc).toHaveBeenCalledWith('folders-collection', expect.objectContaining({ name: 'Test' }))
+  })
+
+  it('deleteFolderDoc should call deleteDoc', async () => {
+    mocks.doc.mockReturnValue('doc-ref')
+    mocks.deleteDoc.mockResolvedValue(undefined)
+    const { initializeFirebase, deleteFolderDoc } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await deleteFolderDoc('folder-id')
+    expect(mocks.doc).toHaveBeenCalledWith(mockDb, 'folders', 'folder-id')
+    expect(mocks.deleteDoc).toHaveBeenCalledWith('doc-ref')
+  })
+
+  it('deleteNoteDoc should call deleteDoc', async () => {
+    mocks.doc.mockReturnValue('doc-ref')
+    mocks.deleteDoc.mockResolvedValue(undefined)
+    const { initializeFirebase, deleteNoteDoc } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await deleteNoteDoc('note-id')
+    expect(mocks.doc).toHaveBeenCalledWith(mockDb, 'notes', 'note-id')
+    expect(mocks.deleteDoc).toHaveBeenCalledWith('doc-ref')
   })
 })
