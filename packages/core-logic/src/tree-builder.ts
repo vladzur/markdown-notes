@@ -1,4 +1,4 @@
-import type { Folder, Note } from '@notes-app/firebase'
+import type { Folder, Note } from '@nexus-notes/firebase'
 import type { TreeNode } from './types'
 
 /**

@@ -1,4 +1,4 @@
-import { useVaultStore } from '@notes-app/core-logic'
+import { useVaultStore } from '@nexus-notes/core-logic'
 
 /**
  * Composable que integra el timer de inactividad de la bóveda

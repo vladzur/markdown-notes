@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useVaultStore } from '../stores/vault-store'
-import { generateSalt } from '@notes-app/crypto'
+import { generateSalt } from '@nexus-notes/crypto'
 
 describe('useVaultStore', () => {
   beforeEach(() => {

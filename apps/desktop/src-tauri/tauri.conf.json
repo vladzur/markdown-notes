@@ -1,19 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/nickolay/tauri-json-schema/refs/heads/main/tauri.conf.json",
-  "productName": "Notes",
+  "productName": "NexusNotes",
   "version": "0.0.0",
-  "identifier": "com.notes-app.desktop",
+  "identifier": "com.nexus-notes.desktop",
   "build": {
-    "beforeDevCommand": "pnpm --filter @notes-app/web build",
+    "beforeDevCommand": "pnpm --filter @nexus-notes/web dev",
     "devUrl": "http://localhost:3000",
-    "beforeBuildCommand": "pnpm --filter @notes-app/web generate",
+    "beforeBuildCommand": "pnpm --filter @nexus-notes/web generate",
     "frontendDist": "../web/.output/public"
   },
   "app": {
-    "title": "Notes - Markdown Vault",
     "windows": [
       {
-        "title": "Notes",
+        "title": "NexusNotes",
         "width": 1200,
         "height": 800,
         "minWidth": 800,

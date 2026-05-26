@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { deriveKey } from '@notes-app/crypto'
+import { deriveKey } from '@nexus-notes/crypto'
 
 /**
  * Store volátil para la bóveda privada.

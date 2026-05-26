@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Folder, Note } from '@notes-app/firebase'
+import type { Folder, Note } from '@nexus-notes/firebase'
 import {
   createFolderDoc,
   createNoteDoc,
@@ -8,7 +8,7 @@ import {
   deleteNoteDoc,
   updateFolderDoc,
   updateNoteDoc,
-} from '@notes-app/firebase'
+} from '@nexus-notes/firebase'
 import type { TreeNode } from '../types'
 import { buildTree } from '../tree-builder'
 

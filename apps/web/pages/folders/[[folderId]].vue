@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useFolderStore } from '@notes-app/core-logic'
+import { useFolderStore } from '@nexus-notes/core-logic'
 import { useAuth } from '~/composables/useAuth'
-import MarkdownEditor from '@notes-app/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
+import MarkdownEditor from '@nexus-notes/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
 
 definePageMeta({
   middleware: 'auth',

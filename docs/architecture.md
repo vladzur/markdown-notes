@@ -3,7 +3,7 @@
 ## 1. Estructura de Directorios del Monorepo
 
 ```text
-markdown-notes-monorepo/
+nexus-notes-monorepo/
 ├── pnpm-workspace.yaml         # Archivo central que define el monorepo
 ├── package.json                # Dependencias globales y scripts de desarrollo
 ├── pnpm-lock.yaml              # Bloqueo estricto de versiones de pnpm
@@ -43,7 +43,7 @@ Al separar la lógica en `packages/`, te aseguras de que el cliente móvil, el d
 ```json
 // packages/crypto/package.json
 {
-  "name": "@notes-app/crypto",
+  "name": "@nexus-notes/crypto",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": { ... }
@@ -55,12 +55,12 @@ En tu aplicación web o de escritorio, lo instalas referenciando el espacio de t
 ```json
 // apps/web/package.json
 {
-  "name": "@notes-app/web",
+  "name": "@nexus-notes/web",
   "dependencies": {
     "nuxt": "^3.0.0",
-    "@notes-app/crypto": "workspace:*",
-    "@notes-app/ui": "workspace:*",
-    "@notes-app/firebase": "workspace:*"
+    "@nexus-notes/crypto": "workspace:*",
+    "@nexus-notes/ui": "workspace:*",
+    "@nexus-notes/firebase": "workspace:*"
   }
 }
 ```
@@ -73,15 +73,15 @@ En tu aplicación web o de escritorio, lo instalas referenciando el espacio de t
     ```
 *   **Añadir una dependencia solo a un proyecto específico:**
     ```bash
-    pnpm add @tiptap/vue-3 --filter @notes-app/ui
+    pnpm add @tiptap/vue-3 --filter @nexus-notes/ui
     ```
 *   **Añadir un paquete interno a una app:**
     ```bash
-    pnpm add @notes-app/crypto --workspace --filter @notes-app/desktop
+    pnpm add @nexus-notes/crypto --workspace --filter @nexus-notes/desktop
     ```
 *   **Iniciar el servidor de desarrollo web:**
     ```bash
-    pnpm dev --filter @notes-app/web
+    pnpm dev --filter @nexus-notes/web
     ```
 
 ## 5. Configuración de Seguridad (`.npmrc`)

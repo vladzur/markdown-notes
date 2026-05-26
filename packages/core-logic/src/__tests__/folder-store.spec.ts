@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useFolderStore } from '../stores/folder-store'
-import type { Folder, Note } from '@notes-app/firebase'
+import type { Folder, Note } from '@nexus-notes/firebase'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +45,7 @@ const firestoreMocks = vi.hoisted(() => ({
   updateNoteDoc: vi.fn(),
 }))
 
-vi.mock('@notes-app/firebase', () => ({
+vi.mock('@nexus-notes/firebase', () => ({
   createFolderDoc: firestoreMocks.createFolderDoc,
   createNoteDoc: firestoreMocks.createNoteDoc,
   deleteFolderDoc: firestoreMocks.deleteFolderDoc,

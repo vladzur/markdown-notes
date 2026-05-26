@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import FolderTree from '../components/FolderTree/FolderTree.vue'
-import type { TreeNode } from '@notes-app/core-logic'
+import type { TreeNode } from '@nexus-notes/core-logic'
 
 function makeNode(overrides: Partial<TreeNode['folder']> = {}, children: TreeNode[] = [], notes: TreeNode['notes'] = []): TreeNode {
   return {

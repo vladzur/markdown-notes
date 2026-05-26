@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/config",
+  "name": "@nexus-notes/config",
   "version": "0.0.0",
   "private": true,
   "type": "module",

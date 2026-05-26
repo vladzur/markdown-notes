@@ -10,7 +10,7 @@ importers:
 
   apps/desktop:
     dependencies:
-      '@notes-app/web':
+      '@nexus-notes/web':
         specifier: workspace:*
         version: link:../web
       '@tauri-apps/api':
@@ -35,7 +35,7 @@ importers:
       '@capacitor/keyboard':
         specifier: ^6.0.0
         version: 6.0.4(@capacitor/core@6.2.1)
-      '@notes-app/web':
+      '@nexus-notes/web':
         specifier: workspace:*
         version: link:../web
     devDependencies:
@@ -48,7 +48,7 @@ importers:
 
   apps/server:
     dependencies:
-      '@notes-app/firebase':
+      '@nexus-notes/firebase':
         specifier: workspace:*
         version: link:../../packages/firebase
       firebase-admin:
@@ -58,7 +58,7 @@ importers:
         specifier: ^1.13.0
         version: 1.15.11
     devDependencies:
-      '@notes-app/config':
+      '@nexus-notes/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@types/node':
@@ -79,16 +79,16 @@ importers:
       '@fontsource/inter':
         specifier: ^5.2.8
         version: 5.2.8
-      '@notes-app/core-logic':
+      '@nexus-notes/core-logic':
         specifier: workspace:*
         version: link:../../packages/core-logic
-      '@notes-app/crypto':
+      '@nexus-notes/crypto':
         specifier: workspace:*
         version: link:../../packages/crypto
-      '@notes-app/firebase':
+      '@nexus-notes/firebase':
         specifier: workspace:*
         version: link:../../packages/firebase
-      '@notes-app/ui':
+      '@nexus-notes/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       nuxt:
@@ -124,17 +124,17 @@ importers:
 
   packages/core-logic:
     dependencies:
-      '@notes-app/crypto':
+      '@nexus-notes/crypto':
         specifier: workspace:*
         version: link:../crypto
-      '@notes-app/firebase':
+      '@nexus-notes/firebase':
         specifier: workspace:*
         version: link:../firebase
       pinia:
         specifier: ^2.3.0
         version: 2.3.1(typescript@5.9.3)(vue@3.5.34(typescript@5.9.3))
     devDependencies:
-      '@notes-app/config':
+      '@nexus-notes/config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -149,7 +149,7 @@ importers:
 
   packages/crypto:
     devDependencies:
-      '@notes-app/config':
+      '@nexus-notes/config':
         specifier: workspace:*
         version: link:../config
       happy-dom:
@@ -168,7 +168,7 @@ importers:
         specifier: ^11.0.0
         version: 11.10.0
     devDependencies:
-      '@notes-app/config':
+      '@nexus-notes/config':
         specifier: workspace:*
         version: link:../config
       typescript:
@@ -180,11 +180,11 @@ importers:
 
   packages/ui:
     dependencies:
-      '@notes-app/core-logic':
+      '@nexus-notes/core-logic':
         specifier: workspace:*
         version: link:../core-logic
     devDependencies:
-      '@notes-app/config':
+      '@nexus-notes/config':
         specifier: workspace:*
         version: link:../config
       '@vitejs/plugin-vue':
