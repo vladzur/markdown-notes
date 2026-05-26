@@ -6,7 +6,7 @@
   "scripts": {
     "dev:web": "pnpm --filter @nexus-notes/web dev",
     "dev:desktop": "pnpm --filter @nexus-notes/desktop dev",
-    "build:all": "pnpm --filter @nexus-notes/web generate && pnpm -r build",
+    "build:all": "pnpm -r build",
     "test:all": "pnpm -r test",
     "lint:all": "pnpm -r lint",
     "typecheck:all": "pnpm -r typecheck"
