@@ -60,19 +60,16 @@ function handleSelectNote(noteId: string, folderId: string) {
   isSidebarOpen.value = false
 }
 
-function handleCreateFolder(parentId: string | null) {
+async function handleCreateFolder(parentId: string | null) {
+  if (!user.value?.uid) return
   const name = window.prompt('Nombre de la carpeta:')
   if (name && name.trim()) {
-    const folder = {
-      userId: user?.uid ?? '',
+    await folderStore.addFolder({
+      userId: user.value.uid,
       name: name.trim(),
       parentId,
       isPrivateVault: false,
       createdAt: new Date().toISOString(),
-    }
-    folderStore.addFolder({
-      id: `local-${Date.now()}`,
-      ...folder,
     })
   }
 }

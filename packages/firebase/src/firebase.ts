@@ -22,6 +22,7 @@ import {
   where,
   getDocs,
   addDoc,
+  updateDoc,
   deleteDoc,
   doc,
   type DocumentData,
@@ -162,4 +163,22 @@ export async function deleteFolderDoc(folderId: string): Promise<void> {
 export async function deleteNoteDoc(noteId: string): Promise<void> {
   const db = getFirebaseDb()
   await deleteDoc(doc(db, 'notes', noteId))
+}
+
+/** Actualiza campos de una carpeta en Firestore. */
+export async function updateFolderDoc(
+  folderId: string,
+  updates: Partial<Pick<Folder, 'name' | 'parentId'>>,
+): Promise<void> {
+  const db = getFirebaseDb()
+  await updateDoc(doc(db, 'folders', folderId), updates as DocumentData)
+}
+
+/** Actualiza campos de una nota en Firestore. */
+export async function updateNoteDoc(
+  noteId: string,
+  updates: Partial<Pick<Note, 'title' | 'content' | 'updatedAt'>>,
+): Promise<void> {
+  const db = getFirebaseDb()
+  await updateDoc(doc(db, 'notes', noteId), updates as DocumentData)
 }

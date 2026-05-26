@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => ({
   where: vi.fn(),
   getDocs: vi.fn(),
   addDoc: vi.fn(),
+  updateDoc: vi.fn(),
   deleteDoc: vi.fn(),
   doc: vi.fn(),
 }))
@@ -59,6 +60,7 @@ vi.mock('firebase/firestore', () => ({
   where: mocks.where,
   getDocs: mocks.getDocs,
   addDoc: mocks.addDoc,
+  updateDoc: mocks.updateDoc,
   deleteDoc: mocks.deleteDoc,
   doc: mocks.doc,
 }))
@@ -269,5 +271,25 @@ describe('firestore helpers', () => {
     await deleteNoteDoc('note-id')
     expect(mocks.doc).toHaveBeenCalledWith(mockDb, 'notes', 'note-id')
     expect(mocks.deleteDoc).toHaveBeenCalledWith('doc-ref')
+  })
+
+  it('updateFolderDoc should call updateDoc with folder data', async () => {
+    mocks.doc.mockReturnValue('folder-doc-ref')
+    mocks.updateDoc.mockResolvedValue(undefined)
+    const { initializeFirebase, updateFolderDoc } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await updateFolderDoc('folder-id', { name: 'Renamed' })
+    expect(mocks.doc).toHaveBeenCalledWith(mockDb, 'folders', 'folder-id')
+    expect(mocks.updateDoc).toHaveBeenCalledWith('folder-doc-ref', { name: 'Renamed' })
+  })
+
+  it('updateNoteDoc should call updateDoc with note data', async () => {
+    mocks.doc.mockReturnValue('note-doc-ref')
+    mocks.updateDoc.mockResolvedValue(undefined)
+    const { initializeFirebase, updateNoteDoc } = await import('../firebase')
+    initializeFirebase(mockConfig)
+    await updateNoteDoc('note-id', { title: 'New Title', content: '# Hello' })
+    expect(mocks.doc).toHaveBeenCalledWith(mockDb, 'notes', 'note-id')
+    expect(mocks.updateDoc).toHaveBeenCalledWith('note-doc-ref', { title: 'New Title', content: '# Hello' })
   })
 })
