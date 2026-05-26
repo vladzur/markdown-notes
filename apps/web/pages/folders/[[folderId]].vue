@@ -43,19 +43,17 @@ const noteContent = computed({
   },
 })
 
-function handleCreateNote() {
+async function handleCreateNote() {
   if (!folderStore.currentFolderId) return
-  const now = new Date().toISOString()
-  const note = {
-    id: `local-${Date.now()}`,
-    userId: user.value?.uid ?? '',
+  if (!user.value?.uid) return
+  const note = await folderStore.addNote({
+    userId: user.value.uid,
     folderId: folderStore.currentFolderId,
     title: '',
     content: '',
     isEncrypted: false,
-    updatedAt: now,
-  }
-  folderStore.addNote(note)
+    updatedAt: new Date().toISOString(),
+  })
   navigateTo(`/folders/${folderStore.currentFolderId}?note=${note.id}`)
 }
 </script>
