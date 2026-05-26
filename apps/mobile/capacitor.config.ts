@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.notes-app.mobile',
-  appName: 'Notes',
+  appId: 'com.nexus-notes.mobile',
+  appName: 'NexusNotes',
   webDir: '../web/.output/public',
   server: {
     androidScheme: 'https',

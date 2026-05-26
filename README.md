@@ -83,7 +83,7 @@ Required variables:
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/markdown-notes-monorepo.git
+git clone https://github.com/your-username/nexus-notes-monorepo.git
 cd my_notes
 pnpm install
 ```
@@ -106,16 +106,16 @@ Due to shell handling of the `@` character, use single quotes around package fil
 
 ```bash
 # Web client (Nuxt 3)
-pnpm --filter '@notes-app/web' dev
+pnpm --filter '@nexus-notes/web' dev
 
 # Desktop client (Tauri)
-pnpm --filter '@notes-app/desktop' dev
+pnpm --filter '@nexus-notes/desktop' dev
 
 # Mobile client (Capacitor)
-pnpm --filter '@notes-app/mobile' dev
+pnpm --filter '@nexus-notes/mobile' dev
 
 # Backend server (h3/Nitro)
-pnpm --filter '@notes-app/server' dev
+pnpm --filter '@nexus-notes/server' dev
 ```
 
 Or use the shorthand scripts defined in the root `package.json`.
@@ -127,10 +127,10 @@ Or use the shorthand scripts defined in the root `package.json`.
 pnpm test:all
 
 # Specific package
-pnpm --filter '@notes-app/crypto' test
-pnpm --filter '@notes-app/core-logic' test
-pnpm --filter '@notes-app/firebase' test
-pnpm --filter '@notes-app/ui' test
+pnpm --filter '@nexus-notes/crypto' test
+pnpm --filter '@nexus-notes/core-logic' test
+pnpm --filter '@nexus-notes/firebase' test
+pnpm --filter '@nexus-notes/ui' test
 ```
 
 Current test coverage: **59 tests** across 4 packages (crypto, firebase, core-logic, ui).
@@ -141,7 +141,7 @@ Current test coverage: **59 tests** across 4 packages (crypto, firebase, core-lo
 
 1. **Strict Non-Hoisting:** The `.npmrc` file enforces `shamefully-hoist=false`. Do not modify this rule, as it prevents dependency confusion attacks and ensures explicit package declaration.
 2. **Volatile Key Management:** Never use storage-persisting plugins (e.g., localStorage auto-sync) on the Pinia `vault` store. Encryption keys must only exist in runtime RAM and are destroyed on vault lock or app close.
-3. **Zero Plaintext Logs:** Ensure no logging mechanisms (such as `console.log` or external telemetry) intercept text strings inside the Private Vault context before they are processed by the `@notes-app/crypto` package.
+3. **Zero Plaintext Logs:** Ensure no logging mechanisms (such as `console.log` or external telemetry) intercept text strings inside the Private Vault context before they are processed by the `@nexus-notes/crypto` package.
 4. **Client-Side Encryption Only:** The backend (Firestore / Cloud Run) must never receive plaintext vault content. Encryption and decryption happen exclusively on the user's device.
 
 ## Documentation

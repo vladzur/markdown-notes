@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useVaultStore } from '@notes-app/core-logic'
-import { generateSalt } from '@notes-app/crypto'
-import VaultGuard from '@notes-app/ui/src/components/VaultGuard/VaultGuard.vue'
-import MarkdownEditor from '@notes-app/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
+import { useVaultStore } from '@nexus-notes/core-logic'
+import { generateSalt } from '@nexus-notes/crypto'
+import VaultGuard from '@nexus-notes/ui/src/components/VaultGuard/VaultGuard.vue'
+import MarkdownEditor from '@nexus-notes/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
 
 definePageMeta({
   middleware: 'auth',

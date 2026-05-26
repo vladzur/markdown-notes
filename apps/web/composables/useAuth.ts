@@ -5,7 +5,7 @@ import {
   signInWithGoogle,
   signOutUser,
   type User,
-} from '@notes-app/firebase'
+} from '@nexus-notes/firebase'
 
 /** Datos mínimos del usuario en el estado reactivo. */
 export interface AuthUser {

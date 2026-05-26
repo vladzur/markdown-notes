@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/ui",
+  "name": "@nexus-notes/ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,10 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@notes-app/core-logic": "workspace:*"
+    "@nexus-notes/core-logic": "workspace:*"
   },
   "devDependencies": {
-    "@notes-app/config": "workspace:*",
+    "@nexus-notes/config": "workspace:*",
     "@vitejs/plugin-vue": "^5.2.0",
     "@vue/test-utils": "^2.4.0",
     "happy-dom": "^15.0.0",

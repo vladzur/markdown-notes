@@ -1,4 +1,4 @@
-import { initializeFirebase, enableOfflinePersistence, getFirebaseAuth, onAuthStateChanged } from '@notes-app/firebase'
+import { initializeFirebase, enableOfflinePersistence, getFirebaseAuth, onAuthStateChanged } from '@nexus-notes/firebase'
 import { setAuthUser } from '~/composables/useAuth'
 
 export default defineNuxtPlugin(async () => {

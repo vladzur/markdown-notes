@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/firebase",
+  "name": "@nexus-notes/firebase",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "firebase": "^11.0.0"
   },
   "devDependencies": {
-    "@notes-app/config": "workspace:*",
+    "@nexus-notes/config": "workspace:*",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   }

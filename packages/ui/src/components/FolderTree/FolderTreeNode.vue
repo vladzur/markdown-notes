@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TreeNode } from '@notes-app/core-logic'
+import type { TreeNode } from '@nexus-notes/core-logic'
 import { ref } from 'vue'
 import { IconChevronRight, IconFolder, IconMarkdown } from '../../icons'
 

@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/crypto",
+  "name": "@nexus-notes/crypto",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@notes-app/config": "workspace:*",
+    "@nexus-notes/config": "workspace:*",
     "happy-dom": "^15.0.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"

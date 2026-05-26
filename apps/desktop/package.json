@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/desktop",
+  "name": "@nexus-notes/desktop",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@notes-app/web": "workspace:*",
+    "@nexus-notes/web": "workspace:*",
     "@tauri-apps/api": "^2.0.0"
   },
   "devDependencies": {

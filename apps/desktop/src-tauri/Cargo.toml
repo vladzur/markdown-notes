@@ -1,12 +1,12 @@
 [package]
-name = "notes-desktop"
+name = "nexus-notes-desktop"
 version = "0.0.0"
-description = "Desktop client for Notes - Markdown Vault"
+description = "Desktop client for NexusNotes - Markdown Vault"
 authors = ["vladzur"]
 edition = "2021"
 
 [lib]
-name = "notes_desktop_lib"
+name = "nexus_notes_desktop_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]

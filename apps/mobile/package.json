@@ -1,16 +1,18 @@
 {
-  "name": "@notes-app/mobile",
+  "name": "@nexus-notes/mobile",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npx cap sync && npx cap open",
-    "build": "npx cap sync",
+    "dev": "pnpm --filter @nexus-notes/web generate && npx cap sync && npx cap open",
+    "build": "pnpm --filter @nexus-notes/web generate && npx cap sync",
+    "add:android": "npx cap add android",
+    "add:ios": "npx cap add ios",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@notes-app/web": "workspace:*",
+    "@nexus-notes/web": "workspace:*",
     "@capacitor/core": "^6.0.0",
     "@capacitor/filesystem": "^6.0.0",
     "@capacitor/keyboard": "^6.0.0"

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ssr: true,
 
   routeRules: {
-    '/': { redirect: '/folders' },
+    '/': { ssr: false },
   },
 
   typescript: {

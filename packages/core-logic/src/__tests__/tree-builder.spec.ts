@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Folder, Note } from '@notes-app/firebase'
+import type { Folder, Note } from '@nexus-notes/firebase'
 import { buildTree } from '../tree-builder'
 
 function makeFolder(overrides: Partial<Folder> = {}): Folder {

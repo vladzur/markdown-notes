@@ -1,11 +1,11 @@
 {
-  "name": "markdown-notes-monorepo",
+  "name": "nexus-notes-monorepo",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@11.0.9",
   "scripts": {
-    "dev:web": "pnpm --filter @notes-app/web dev",
-    "dev:desktop": "pnpm --filter @notes-app/desktop dev",
+    "dev:web": "pnpm --filter @nexus-notes/web dev",
+    "dev:desktop": "pnpm --filter @nexus-notes/desktop dev",
     "build:all": "pnpm -r build",
     "test:all": "pnpm -r test",
     "lint:all": "pnpm -r lint",

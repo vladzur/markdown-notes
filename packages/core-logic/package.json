@@ -1,5 +1,5 @@
 {
-  "name": "@notes-app/core-logic",
+  "name": "@nexus-notes/core-logic",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,12 +12,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@notes-app/crypto": "workspace:*",
-    "@notes-app/firebase": "workspace:*",
+    "@nexus-notes/crypto": "workspace:*",
+    "@nexus-notes/firebase": "workspace:*",
     "pinia": "^2.3.0"
   },
   "devDependencies": {
-    "@notes-app/config": "workspace:*",
+    "@nexus-notes/config": "workspace:*",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
     "vue": "^3.5.0"

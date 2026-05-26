@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useFolderStore, useVaultStore } from '@notes-app/core-logic'
-import { getUserFolders, getUserNotes } from '@notes-app/firebase'
+import { useFolderStore, useVaultStore } from '@nexus-notes/core-logic'
+import { getUserFolders, getUserNotes } from '@nexus-notes/firebase'
 import { useAuth, logout } from '~/composables/useAuth'
-import FolderTree from '@notes-app/ui/src/components/FolderTree/FolderTree.vue'
-import ConfirmDialog from '@notes-app/ui/src/components/ConfirmDialog/ConfirmDialog.vue'
+import FolderTree from '@nexus-notes/ui/src/components/FolderTree/FolderTree.vue'
+import ConfirmDialog from '@nexus-notes/ui/src/components/ConfirmDialog/ConfirmDialog.vue'
 import {
   IconPenNib,
   IconFolderPlus,
@@ -15,7 +15,7 @@ import {
   IconLock,
   IconLockOpen,
   IconChevronRight,
-} from '@notes-app/ui/src/icons'
+} from '@nexus-notes/ui/src/icons'
 
 const folderStore = useFolderStore()
 const vaultStore = useVaultStore()
