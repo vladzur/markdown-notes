@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @nexus-notes/web generate && npx cap sync && npx cap open",
-    "build": "pnpm --filter @nexus-notes/web generate && npx cap sync",
+    "build": "[ -f ../web/.output/public/index.html ] || pnpm --filter @nexus-notes/web generate; npx cap sync",
     "add:android": "npx cap add android",
     "add:ios": "npx cap add ios",
     "lint": "eslint .",
