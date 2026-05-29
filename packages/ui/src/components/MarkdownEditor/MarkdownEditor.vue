@@ -66,7 +66,7 @@ const editor = useEditor({
   ],
   editorProps: {
     attributes: {
-      class: 'prose prose-invert max-w-none outline-none min-h-[200px] text-dark-text',
+      class: 'prose prose-invert max-w-none outline-none min-h-[200px]',
     },
   },
   onUpdate: () => {
@@ -211,3 +211,89 @@ function setLink(): void {
     </div>
   </div>
 </template>
+
+<style>
+/* Espaciado compacto para el editor: anula defaults de typography */
+.ProseMirror {
+  line-height: 1.6;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+}
+
+.ProseMirror h1:first-child,
+.ProseMirror h2:first-child,
+.ProseMirror h3:first-child,
+.ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.ProseMirror p {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  margin-top: 0.25em;
+  margin-bottom: 0.4em;
+  padding-left: 1.5em;
+}
+
+.ProseMirror li {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.ProseMirror li p {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.ProseMirror ul ul,
+.ProseMirror ul ol,
+.ProseMirror ol ul,
+.ProseMirror ol ol {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.ProseMirror blockquote {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+  border-left-color: #475569;
+}
+
+.ProseMirror pre {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+.ProseMirror hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.ProseMirror code {
+  background-color: #1e293b;
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+  font-weight: 400;
+  font-size: 0.875em;
+}
+
+.ProseMirror code::before,
+.ProseMirror code::after {
+  content: none;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+</style>

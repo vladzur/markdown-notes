@@ -52,7 +52,6 @@
   }
 }
 
-
 @layer utilities {
   /* Animación de pulso al desbloquear */
   @keyframes unlockPulse {
