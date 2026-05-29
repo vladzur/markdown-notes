@@ -1,3 +1,5 @@
+import typography from '@tailwindcss/typography'
+
 export default {
   content: [
     './{pages,layouts,components}/**/*.vue',
@@ -38,4 +40,5 @@ export default {
       },
     },
   },
+  plugins: [typography()],
 }
