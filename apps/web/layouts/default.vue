@@ -97,10 +97,10 @@ async function handleLogout() {
 }
 
 onMounted(async () => {
-  if (isAuthenticated.value && user?.uid && folderStore.folders.length === 0) {
+  if (isAuthenticated.value && user.value?.uid && folderStore.folders.length === 0) {
     try {
-      const folders = await getUserFolders(user.uid)
-      const notes = await getUserNotes(user.uid)
+      const folders = await getUserFolders(user.value.uid)
+      const notes = await getUserNotes(user.value.uid)
       if (folders.length > 0 || notes.length > 0) {
         folderStore.setData(folders, notes)
       }
