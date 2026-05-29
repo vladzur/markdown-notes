@@ -13,8 +13,6 @@
   *::before,
   *::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
   }
 
   html,
@@ -54,39 +52,6 @@
   }
 }
 
-@layer components {
-  /* Estilos de contenido Markdown renderizado */
-  .prose h1 {
-    font-size: 2em;
-    font-weight: bold;
-    margin-bottom: 0.5em;
-    color: #f8fafc;
-  }
-
-  .prose h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    border-bottom: 1px solid #475569;
-    padding-bottom: 0.3em;
-    color: #f8fafc;
-  }
-
-  .prose p {
-    margin-bottom: 1em;
-    line-height: 1.6;
-  }
-
-  .prose code {
-    background-color: #0f172a;
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 0.9em;
-    color: #38bdf8;
-  }
-}
 
 @layer utilities {
   /* Animación de pulso al desbloquear */
@@ -108,4 +73,4 @@
   .unlock-anim {
     animation: unlockPulse 0.5s ease-out;
   }
-}
+
