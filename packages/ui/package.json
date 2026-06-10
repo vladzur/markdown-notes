@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nexus-notes/core-logic": "workspace:*",
+    "@tiptap/extension-table": "^3.23.6",
     "@tiptap/extension-link": "^3.23.6",
     "@tiptap/extension-placeholder": "^3.23.6",
     "@tiptap/extension-underline": "^3.23.6",
@@ -20,10 +21,12 @@
     "@tiptap/starter-kit": "^3.23.6",
     "@tiptap/vue-3": "^3.23.6",
     "marked": "^18.0.4",
-    "turndown": "^7.2.4"
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
   },
   "devDependencies": {
     "@nexus-notes/config": "workspace:*",
+    "@types/turndown": "^5.0.6",
     "@vitejs/plugin-vue": "^5.2.0",
     "@vue/test-utils": "^2.4.0",
     "happy-dom": "^15.0.0",

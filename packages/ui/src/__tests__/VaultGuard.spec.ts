@@ -36,7 +36,7 @@ describe('VaultGuard', () => {
     const wrapper = mount(VaultGuard)
     expect(wrapper.find('[data-testid="vault-error"]').exists()).toBe(false)
 
-    // @ts-expect-error -- método expuesto por defineExpose
+    // Método expuesto por defineExpose
     wrapper.vm.showError()
     await wrapper.vm.$nextTick()
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
+import { TableKit } from '@tiptap/extension-table/kit'
 import PlaceholderExtension from '@tiptap/extension-placeholder'
 import { marked } from 'marked'
 import TurndownService from 'turndown'
+import { gfm } from 'turndown-plugin-gfm'
 import { watch } from 'vue'
 import ToolbarButton from './ToolbarButton.vue'
 import {
@@ -40,6 +42,9 @@ const turndownService = new TurndownService({
   codeBlockStyle: 'fenced',
 })
 
+// Soporte para GFM: tablas, strikethrough, listas de tareas
+turndownService.use(gfm)
+
 function markdownToHtml(md: string): string {
   if (!md) return ''
   return marked.parse(md, { async: false }) as string
@@ -58,6 +63,13 @@ const editor = useEditor({
       link: {
         openOnClick: false,
         HTMLAttributes: { class: 'text-brand-500 underline' },
+      },
+    }),
+    TableKit.configure({
+      table: {
+        HTMLAttributes: {
+          class: 'prose-table',
+        },
       },
     }),
     PlaceholderExtension.configure({
@@ -295,5 +307,46 @@ function setLink(): void {
   background: none;
   padding: 0;
   border-radius: 0;
+}
+
+/* ---- Tablas ---- */
+.ProseMirror table {
+  border-collapse: collapse;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  width: 100%;
+  table-layout: auto;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid #475569;
+  padding: 0.4em 0.75em;
+  text-align: left;
+  vertical-align: top;
+  min-width: 3em;
+}
+
+.ProseMirror th {
+  background-color: #1e293b;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.ProseMirror td {
+  background-color: #0f172a;
+}
+
+.ProseMirror th p,
+.ProseMirror td p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Wrapper que Tiptap usa para tablas en modo editable */
+.ProseMirror .tableWrapper {
+  overflow-x: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 </style>
