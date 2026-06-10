@@ -13,10 +13,11 @@ import {
 
 export { onAuthStateChanged, type User } from 'firebase/auth'
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   type Firestore,
   connectFirestoreEmulator,
-  enableIndexedDbPersistence,
   collection,
   query,
   where,
@@ -47,7 +48,11 @@ export function initializeFirebase(config: FirebaseConfig, useEmulators = false)
 
   app = initializeApp(config)
   auth = getAuth(app)
-  db = getFirestore(app)
+  
+  // Usar persistentLocalCache en lugar de enableIndexedDbPersistence
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  })
 
   if (useEmulators) {
     connectAuthEmulator(auth, 'http://localhost:9099')
@@ -56,14 +61,13 @@ export function initializeFirebase(config: FirebaseConfig, useEmulators = false)
 }
 
 /**
- * Habilita la persistencia offline de Firestore usando IndexedDB.
- * Debe llamarse después de initializeFirebase y antes de cualquier query.
+ * @deprecated La persistencia offline ahora se inicializa automáticamente en initializeFirebase.
  */
 export async function enableOfflinePersistence(): Promise<void> {
   if (!db) {
     throw new Error('Firestore no inicializado. Llama a initializeFirebase primero.')
   }
-  await enableIndexedDbPersistence(db)
+  return Promise.resolve()
 }
 
 /** Retorna la instancia de Auth inicializada. */
