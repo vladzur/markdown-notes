@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { deriveKey } from '@nexus-notes/crypto'
+import { deriveKey, generateSalt, generateValidationHash, toBase64, fromBase64 } from '@nexus-notes/crypto'
+import { getUserProfile, updateUserProfile } from '@nexus-notes/firebase'
 
 /**
  * Store volátil para la bóveda privada.
@@ -12,24 +13,78 @@ import { deriveKey } from '@nexus-notes/crypto'
 export const useVaultStore = defineStore('vault', () => {
   /** CryptoKey AES-GCM en RAM. null = bóveda bloqueada. */
   const vaultKey = ref<CryptoKey | null>(null)
-  /** Salt del usuario almacenada junto a sus datos cifrados. */
+  /** Salt del usuario cargada desde Firebase. */
   const vaultSalt = ref<Uint8Array | null>(null)
-  /** Tiempo de inactividad en ms antes de bloquear automáticamente. 0 = sin timeout. */
-  const inactivityTimeout = ref<number>(0)
+  
+  /** Tiempo de inactividad en ms antes de bloquear automáticamente. Por defecto 5 mins. */
+  const inactivityTimeout = ref<number>(300_000)
   /** ID del timer de inactividad activo. */
   let inactivityTimerId: ReturnType<typeof setTimeout> | null = null
 
+  const isVaultConfigured = ref(false)
+  const isLoaded = ref(false)
+  const validationHashCache = ref<string | null>(null)
+  const currentUserId = ref<string | null>(null)
+
   const isUnlocked = computed(() => vaultKey.value !== null)
 
-  /**
-   * Deriva la clave desde la contraseña maestra y desbloquea la bóveda.
-   * La clave resultante se almacena exclusivamente en RAM.
+  /** 
+   * Carga la configuración inicial de la bóveda desde el perfil del usuario.
    */
-  async function unlockVault(password: string, salt: Uint8Array): Promise<boolean> {
+  async function loadUserProfile(userId: string): Promise<void> {
+    currentUserId.value = userId
+    const profile = await getUserProfile(userId)
+    if (profile && profile.vaultSalt && profile.vaultValidationHash) {
+      isVaultConfigured.value = true
+      vaultSalt.value = fromBase64(profile.vaultSalt)
+      validationHashCache.value = profile.vaultValidationHash
+    } else {
+      isVaultConfigured.value = false
+    }
+    isLoaded.value = true
+  }
+
+  /**
+   * Configura la bóveda por primera vez: genera la salt, valida el hash y guarda en Firestore.
+   */
+  async function setupVault(password: string): Promise<boolean> {
+    if (!currentUserId.value) throw new Error('User not loaded in vault store')
+    const salt = generateSalt()
+    const validationHash = await generateValidationHash(password, salt)
+    
+    await updateUserProfile(currentUserId.value, {
+      vaultSalt: toBase64(salt),
+      vaultValidationHash: validationHash
+    })
+
+    isVaultConfigured.value = true
+    vaultSalt.value = salt
+    validationHashCache.value = validationHash
+    
+    // Auto-desbloquear tras configurarlo
+    return await unlockVault(password)
+  }
+
+  /**
+   * Deriva la clave desde la contraseña maestra y la verifica contra el hash guardado.
+   * Si es correcta, la clave AES-GCM se almacena en RAM.
+   */
+  async function unlockVault(password: string): Promise<boolean> {
+    if (!isVaultConfigured.value || !vaultSalt.value || !validationHashCache.value) {
+      return false
+    }
+
     try {
-      const key = await deriveKey(password, salt)
+      // 1. Validar contraseña
+      const hashToTest = await generateValidationHash(password, vaultSalt.value)
+      if (hashToTest !== validationHashCache.value) {
+        return false // Contraseña incorrecta
+      }
+
+      // 2. Derivar clave maestra
+      const key = await deriveKey(password, vaultSalt.value)
       vaultKey.value = key
-      vaultSalt.value = salt
+      resetInactivityTimer()
       return true
     } catch {
       return false
@@ -39,7 +94,6 @@ export const useVaultStore = defineStore('vault', () => {
   /** Bloquea la bóveda inmediatamente, destruyendo la clave de RAM. */
   function lockVault(): void {
     vaultKey.value = null
-    vaultSalt.value = null
     clearInactivityTimer()
   }
 
@@ -71,7 +125,11 @@ export const useVaultStore = defineStore('vault', () => {
     vaultKey,
     vaultSalt,
     isUnlocked,
+    isVaultConfigured,
+    isLoaded,
     inactivityTimeout,
+    loadUserProfile,
+    setupVault,
     unlockVault,
     lockVault,
     resetInactivityTimer,

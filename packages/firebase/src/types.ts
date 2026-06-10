@@ -8,6 +8,13 @@ export interface FirebaseConfig {
   appId: string
 }
 
+/** Perfil del usuario para almacenar configuraciones (ej. bóveda E2E). */
+export interface UserProfile {
+  id: string // Coincide con auth.currentUser.uid
+  vaultSalt?: string
+  vaultValidationHash?: string
+}
+
 /** Documento de carpeta en la colección Firestore `folders`. */
 export interface Folder {
   id: string

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useVaultStore } from '@nexus-notes/core-logic'
-import { generateSalt } from '@nexus-notes/crypto'
 import VaultGuard from '@nexus-notes/ui/src/components/VaultGuard/VaultGuard.vue'
 import MarkdownEditor from '@nexus-notes/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
 
@@ -12,9 +11,13 @@ const vaultStore = useVaultStore()
 const vaultGuardRef = ref<InstanceType<typeof VaultGuard> | null>(null)
 const vaultContent = ref('')
 
-async function handleUnlock(password: string) {
-  const salt = generateSalt()
-  const success = await vaultStore.unlockVault(password, salt)
+async function handleSubmit(password: string) {
+  let success = false
+  if (vaultStore.isVaultConfigured) {
+    success = await vaultStore.unlockVault(password)
+  } else {
+    success = await vaultStore.setupVault(password)
+  }
 
   if (!success) {
     vaultGuardRef.value?.showError()
@@ -27,7 +30,8 @@ async function handleUnlock(password: string) {
     <VaultGuard
       v-if="!vaultStore.isUnlocked"
       ref="vaultGuardRef"
-      @unlock="handleUnlock"
+      :is-configured="vaultStore.isVaultConfigured"
+      @submit="handleSubmit"
     />
     <div v-else class="h-full flex flex-col">
       <div class="px-4 py-3 bg-dark-surface/30 border-b border-dark-border">

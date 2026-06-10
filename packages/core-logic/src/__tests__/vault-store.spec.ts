@@ -1,12 +1,19 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useVaultStore } from '../stores/vault-store'
-import { generateSalt } from '@nexus-notes/crypto'
+import * as firebaseMod from '@nexus-notes/firebase'
+
+// Mocks
+vi.mock('@nexus-notes/firebase', () => ({
+  getUserProfile: vi.fn(),
+  updateUserProfile: vi.fn(),
+}))
 
 describe('useVaultStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.useFakeTimers()
+    vi.resetAllMocks()
   })
 
   afterEach(() => {
@@ -19,42 +26,49 @@ describe('useVaultStore', () => {
     expect(store.vaultKey).toBeNull()
   })
 
-  it('should unlock with correct password', async () => {
+  it('should setup vault and unlock automatically', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    const result = await store.unlockVault('master-password', salt)
+    // Mock user
+    vi.mocked(firebaseMod.getUserProfile).mockResolvedValue(null)
+    await store.loadUserProfile('user123')
+    
+    expect(store.isVaultConfigured).toBe(false)
+    
+    const result = await store.setupVault('password')
     expect(result).toBe(true)
+    expect(store.isVaultConfigured).toBe(true)
     expect(store.isUnlocked).toBe(true)
-    expect(store.vaultKey).toBeDefined()
+    expect(firebaseMod.updateUserProfile).toHaveBeenCalledWith('user123', expect.any(Object))
   })
 
   it('should fail to unlock with incorrect password', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    const result = await store.unlockVault('wrong-password', salt)
-    // El fallo de descifrado no ocurre aquí porque unlockVault solo deriva la clave.
-    // La validación real ocurre al intentar descifrar datos.
-    // unlockVault solo falla si deriveKey lanza error (ej. password vacía en un entorno restrictivo).
-    // Por ahora, verify que deriveKey no lanza error incluso con password incorrecta.
-    expect(result).toBe(true)
+    vi.mocked(firebaseMod.getUserProfile).mockResolvedValue(null)
+    await store.loadUserProfile('user123')
+    
+    await store.setupVault('password')
+    store.lockVault()
+    
+    const result = await store.unlockVault('wrong-password')
+    expect(result).toBe(false)
+    expect(store.isUnlocked).toBe(false)
   })
 
   it('should lock vault and destroy key from RAM', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    await store.unlockVault('password', salt)
+    await store.loadUserProfile('user123')
+    await store.setupVault('password')
 
     expect(store.isUnlocked).toBe(true)
     store.lockVault()
     expect(store.isUnlocked).toBe(false)
     expect(store.vaultKey).toBeNull()
-    expect(store.vaultSalt).toBeNull()
   })
 
   it('should auto-lock after inactivity timeout', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    await store.unlockVault('password', salt)
+    await store.loadUserProfile('user123')
+    await store.setupVault('password')
 
     store.setInactivityTimeout(60_000) // 1 minuto
     expect(store.isUnlocked).toBe(true)
@@ -67,8 +81,8 @@ describe('useVaultStore', () => {
 
   it('should reset inactivity timer on user interaction', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    await store.unlockVault('password', salt)
+    await store.loadUserProfile('user123')
+    await store.setupVault('password')
 
     store.setInactivityTimeout(60_000)
 
@@ -87,8 +101,8 @@ describe('useVaultStore', () => {
 
   it('should not auto-lock when timeout is 0', async () => {
     const store = useVaultStore()
-    const salt = generateSalt()
-    await store.unlockVault('password', salt)
+    await store.loadUserProfile('user123')
+    await store.setupVault('password')
 
     store.setInactivityTimeout(0) // Sin timeout
     vi.advanceTimersByTime(3_600_000) // 1 hora
