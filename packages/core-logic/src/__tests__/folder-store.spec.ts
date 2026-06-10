@@ -60,10 +60,10 @@ describe('useFolderStore', () => {
     expect(store.tree).toEqual([])
   })
 
-  it('should set data and build tree', () => {
+  it('should set data and build tree', async () => {
     const store = useFolderStore()
     const folders = [makeFolder({ id: 'root', name: 'Root' })]
-    store.setData(folders, [])
+    await store.setData(folders, [])
     expect(store.folders).toHaveLength(1)
     expect(store.tree).toHaveLength(1)
     expect(store.tree[0]!.folder.name).toBe('Root')
@@ -93,13 +93,14 @@ describe('useFolderStore', () => {
 
     const store = useFolderStore()
     const noteStore = useNoteStore()
-    store.setData(
+    await store.setData(
       [makeFolder({ id: 'to-remove' }), makeFolder({ id: 'keep', name: 'Keep' })],
       [
         makeNote({ id: 'n-in-folder', folderId: 'to-remove' }),
         makeNote({ id: 'n-other', folderId: 'keep' }),
       ],
     )
+
 
     await store.removeFolder('to-remove')
 
@@ -116,7 +117,7 @@ describe('useFolderStore', () => {
     firestoreMocks.deleteNoteDoc.mockResolvedValue(undefined)
 
     const store = useFolderStore()
-    store.setData([makeFolder({ id: 'selected' })], [])
+    await store.setData([makeFolder({ id: 'selected' })], [])
     store.selectFolder('selected')
 
     await store.removeFolder('selected')
@@ -128,7 +129,7 @@ describe('useFolderStore', () => {
     firestoreMocks.deleteFolderDoc.mockRejectedValue(new Error('Firestore error'))
 
     const store = useFolderStore()
-    store.setData([makeFolder({ id: 'f-1', name: 'Important' })], [])
+    await store.setData([makeFolder({ id: 'f-1', name: 'Important' })], [])
     store.selectFolder('f-1')
 
     await store.removeFolder('f-1')
@@ -142,7 +143,7 @@ describe('useFolderStore', () => {
   it('should update folder name (optimistic + Firestore)', async () => {
     firestoreMocks.updateFolderDoc.mockResolvedValue(undefined)
     const store = useFolderStore()
-    store.setData([makeFolder({ id: 'f-1', name: 'Original' })], [])
+    await store.setData([makeFolder({ id: 'f-1', name: 'Original' })], [])
 
     await store.updateFolder('f-1', { name: 'Renamed' })
 
@@ -150,9 +151,9 @@ describe('useFolderStore', () => {
     expect(firestoreMocks.updateFolderDoc).toHaveBeenCalledWith('f-1', { name: 'Renamed' })
   })
 
-  it('should filter current notes by selected folder', () => {
+  it('should filter current notes by selected folder', async () => {
     const store = useFolderStore()
-    store.setData(
+    await store.setData(
       [],
       [
         makeNote({ id: 'n-1', folderId: 'f-1', title: 'Note 1' }),

@@ -26,5 +26,6 @@ export interface Note {
   title: string
   content: string
   isEncrypted: boolean
+  encryptionIv?: string
   updatedAt: string
 }
