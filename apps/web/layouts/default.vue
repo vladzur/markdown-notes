@@ -104,22 +104,27 @@ function resetVaultTimer() {
 }
 
 onMounted(async () => {
-  if (isAuthenticated.value && user.value?.uid) {
-    try {
-      // Cargar configuración de bóveda
-      await vaultStore.loadUserProfile(user.value.uid)
-
-      if (folderStore.folders.length === 0) {
-        const folders = await getUserFolders(user.value.uid)
-        const notes = await getUserNotes(user.value.uid)
-        if (folders.length > 0 || notes.length > 0) {
-          folderStore.setData(folders, notes)
+  // Cargar datos cuando el usuario esté autenticado
+  watch(
+    () => user.value?.uid,
+    async (uid) => {
+      if (uid) {
+        try {
+          await vaultStore.loadUserProfile(uid)
+          if (folderStore.folders.length === 0) {
+            const folders = await getUserFolders(uid)
+            const notes = await getUserNotes(uid)
+            if (folders.length > 0 || notes.length > 0) {
+              folderStore.setData(folders, notes)
+            }
+          }
+        } catch {
+          // Silencioso
         }
       }
-    } catch {
-      // Silencioso
-    }
-  }
+    },
+    { immediate: true }
+  )
 
   // Listeners para temporizador de inactividad de la bóveda
   window.addEventListener('mousemove', resetVaultTimer)
