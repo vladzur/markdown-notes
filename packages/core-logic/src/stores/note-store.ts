@@ -6,6 +6,9 @@ import {
   deleteNoteDoc,
   updateNoteDoc,
 } from '@nexus-notes/firebase'
+import { useFolderStore } from './folder-store'
+import { useVaultStore } from './vault-store'
+import { encrypt, decrypt } from '@nexus-notes/crypto'
 
 /** Tiempo de espera (ms) para consolidar escrituras frecuentes de contenido. */
 const NOTE_SAVE_DEBOUNCE_MS = 500
@@ -21,14 +24,47 @@ export const useNoteStore = defineStore('notes', () => {
     return notes.value.find(n => n.id === currentNoteId.value)
   })
 
-  function setNotes(fetchedNotes: Note[]): void {
-    notes.value = fetchedNotes
+  function isFolderPrivate(folderId: string): boolean {
+    const folderStore = useFolderStore()
+    const folder = folderStore.folders.find(f => f.id === folderId)
+    return folder?.isPrivateVault ?? false
+  }
+
+  async function setNotes(fetchedNotes: Note[]): Promise<void> {
+    const vaultStore = useVaultStore()
+    
+    const decryptedNotes = await Promise.all(fetchedNotes.map(async (n) => {
+      if (n.isEncrypted && n.encryptionIv && vaultStore.vaultKey) {
+        try {
+          const plainContent = await decrypt(n.content, n.encryptionIv, vaultStore.vaultKey)
+          return { ...n, content: plainContent }
+        } catch (e) {
+          console.error(`Error descifrando la nota ${n.id}`, e)
+          return n
+        }
+      }
+      return n
+    }))
+    
+    notes.value = decryptedNotes
   }
 
   /** Crea una nota en Firestore y la agrega al estado local. */
   async function addNote(note: Omit<Note, 'id'>): Promise<Note> {
-    const id = await createNoteDoc(note)
-    const newNote: Note = { ...note, id }
+    const payload = { ...note, isEncrypted: false, encryptionIv: undefined as string | undefined }
+
+    if (isFolderPrivate(note.folderId)) {
+      const vaultStore = useVaultStore()
+      if (vaultStore.vaultKey) {
+        const { ciphertext, iv } = await encrypt(note.content, vaultStore.vaultKey)
+        payload.content = ciphertext
+        payload.encryptionIv = iv
+        payload.isEncrypted = true
+      }
+    }
+
+    const id = await createNoteDoc(payload)
+    const newNote: Note = { ...note, id, isEncrypted: payload.isEncrypted, encryptionIv: payload.encryptionIv }
     notes.value.push(newNote)
     return newNote
   }
@@ -64,13 +100,29 @@ export const useNoteStore = defineStore('notes', () => {
     const index = notes.value.findIndex((n) => n.id === noteId)
     if (index === -1) return
 
-    notes.value[index] = { ...notes.value[index]!, ...updates }
+    const note = notes.value[index]!
+    notes.value[index] = { ...note, ...updates }
 
     cancelPendingNoteSave(noteId)
     const timer = setTimeout(async () => {
       pendingNoteSaves.delete(noteId)
       try {
-        await updateNoteDoc(noteId, { ...updates, updatedAt: new Date().toISOString() })
+        const savePayload: Partial<Note> = { ...updates, updatedAt: new Date().toISOString() }
+
+        if (isFolderPrivate(note.folderId) && savePayload.content !== undefined) {
+          const vaultStore = useVaultStore()
+          if (vaultStore.vaultKey) {
+            const { ciphertext, iv } = await encrypt(savePayload.content, vaultStore.vaultKey)
+            savePayload.content = ciphertext
+            savePayload.encryptionIv = iv
+            savePayload.isEncrypted = true
+
+            notes.value[index]!.encryptionIv = iv
+            notes.value[index]!.isEncrypted = true
+          }
+        }
+
+        await updateNoteDoc(noteId, savePayload)
       } catch (e) {
         console.error('Error al persistir nota en Firestore:', e)
       }
