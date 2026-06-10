@@ -49,9 +49,8 @@ export const useNoteStore = defineStore('notes', () => {
     notes.value = decryptedNotes
   }
 
-  /** Crea una nota en Firestore y la agrega al estado local. */
   async function addNote(note: Omit<Note, 'id'>): Promise<Note> {
-    const payload = { ...note, isEncrypted: false, encryptionIv: undefined as string | undefined }
+    const payload: any = { ...note, isEncrypted: false }
 
     if (isFolderPrivate(note.folderId)) {
       const vaultStore = useVaultStore()
