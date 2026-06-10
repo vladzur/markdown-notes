@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFolderStore, useVaultStore } from '@nexus-notes/core-logic'
+import { useFolderStore, useVaultStore, useNoteStore } from '@nexus-notes/core-logic'
 import { getUserFolders, getUserNotes } from '@nexus-notes/firebase'
 import { useAuth, logout } from '~/composables/useAuth'
 import FolderTree from '@nexus-notes/ui/src/components/FolderTree/FolderTree.vue'
@@ -18,6 +18,7 @@ import {
 } from '@nexus-notes/ui/src/icons'
 
 const folderStore = useFolderStore()
+const noteStore = useNoteStore()
 const vaultStore = useVaultStore()
 const { user, isAuthenticated } = useAuth()
 const isSidebarOpen = ref(false)
@@ -40,7 +41,7 @@ const breadcrumbs = computed(() => {
     }
   }
   if (currentNoteId.value) {
-    const note = folderStore.notes.find(n => n.id === currentNoteId.value)
+    const note = noteStore.notes.find(n => n.id === currentNoteId.value)
     if (note) {
       crumbs.push({ id: note.id, name: note.title || 'Sin título' })
     }
