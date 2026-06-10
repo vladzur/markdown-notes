@@ -108,18 +108,31 @@ onMounted(async () => {
   watch(
     () => user.value?.uid,
     async (uid) => {
+      console.log('watch triggered with uid:', uid)
       if (uid) {
+        // 1. Cargar perfil de bóveda (Aislado para que no rompa el resto si fallan los permisos)
         try {
           await vaultStore.loadUserProfile(uid)
+          console.log('user profile loaded')
+        } catch (e) {
+          console.error('Error loading user profile (vault):', e)
+        }
+
+        // 2. Cargar carpetas y notas
+        try {
           if (folderStore.folders.length === 0) {
             const folders = await getUserFolders(uid)
             const notes = await getUserNotes(uid)
+            console.log('Fetched from Firebase:', { folders, notes })
             if (folders.length > 0 || notes.length > 0) {
               folderStore.setData(folders, notes)
+              console.log('Set data in store')
             }
+          } else {
+             console.log('folders already exist in store')
           }
-        } catch {
-          // Silencioso
+        } catch (e) {
+          console.error('Error fetching folders/notes:', e)
         }
       }
     },
