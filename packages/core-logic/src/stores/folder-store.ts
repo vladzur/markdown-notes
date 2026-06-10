@@ -28,9 +28,9 @@ export const useFolderStore = defineStore('folders', () => {
   })
 
   /** Reemplaza todo el estado local con datos planos desde Firestore. */
-  function setData(fetchedFolders: Folder[], fetchedNotes: Note[]): void {
+  async function setData(fetchedFolders: Folder[], fetchedNotes: Note[]): Promise<void> {
     folders.value = fetchedFolders
-    noteStore.setNotes(fetchedNotes)
+    await noteStore.setNotes(fetchedNotes)
   }
 
   /** Crea una carpeta en Firestore y la agrega al estado local. */
