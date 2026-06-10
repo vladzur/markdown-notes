@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFolderStore } from '@nexus-notes/core-logic'
+import { useFolderStore, useNoteStore } from '@nexus-notes/core-logic'
 import { useAuth } from '~/composables/useAuth'
 import MarkdownEditor from '@nexus-notes/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
 
@@ -9,6 +9,7 @@ definePageMeta({
 
 const route = useRoute()
 const folderStore = useFolderStore()
+const noteStore = useNoteStore()
 const { user } = useAuth()
 
 // Sincronizar currentFolderId con la ruta
@@ -22,14 +23,14 @@ const selectedNoteId = computed(() => (route.query.note as string) || null)
 
 const selectedNote = computed(() => {
   if (!selectedNoteId.value) return null
-  return folderStore.notes.find((n) => n.id === selectedNoteId.value) ?? null
+  return noteStore.notes.find((n) => n.id === selectedNoteId.value) ?? null
 })
 
 const noteTitle = computed({
   get: () => selectedNote.value?.title ?? '',
   set: (val) => {
     if (selectedNoteId.value) {
-      folderStore.updateNote(selectedNoteId.value, { title: val })
+      noteStore.updateNote(selectedNoteId.value, { title: val })
     }
   },
 })
@@ -38,7 +39,7 @@ const noteContent = computed({
   get: () => selectedNote.value?.content ?? '',
   set: (val) => {
     if (selectedNoteId.value) {
-      folderStore.updateNote(selectedNoteId.value, { content: val })
+      noteStore.updateNote(selectedNoteId.value, { content: val })
     }
   },
 })
@@ -46,7 +47,7 @@ const noteContent = computed({
 async function handleCreateNote() {
   if (!folderStore.currentFolderId) return
   if (!user.value?.uid) return
-  const note = await folderStore.addNote({
+  const note = await noteStore.addNote({
     userId: user.value.uid,
     folderId: folderStore.currentFolderId,
     title: '',
