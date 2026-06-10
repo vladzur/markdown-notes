@@ -1,30 +1,43 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { IconShieldHalved, IconKey, IconSpinner } from '../../icons'
 
+const props = defineProps<{
+  isConfigured: boolean
+}>()
+
 const emit = defineEmits<{
-  unlock: [password: string]
+  submit: [password: string]
 }>()
 
 const password = ref('')
-const error = ref(false)
+const confirmPassword = ref('')
+const errorMsg = ref('')
 const isLoading = ref(false)
+
+const isSetup = computed(() => !props.isConfigured)
 
 async function handleSubmit() {
   if (!password.value) return
+  if (isSetup.value && password.value !== confirmPassword.value) {
+    errorMsg.value = 'Las contraseñas no coinciden.'
+    return
+  }
+  
   isLoading.value = true
-  error.value = false
-  emit('unlock', password.value)
+  errorMsg.value = ''
+  emit('submit', password.value)
 }
 
 function handleInput() {
-  error.value = false
+  errorMsg.value = ''
 }
 
-/** Llamar desde el padre si la contraseña fue incorrecta. */
-function showError() {
-  error.value = true
+/** Llamar desde el padre si hubo un error. */
+function showError(msg = 'Contraseña incorrecta. Intenta de nuevo.') {
+  errorMsg.value = msg
   password.value = ''
+  confirmPassword.value = ''
   isLoading.value = false
 }
 
@@ -37,9 +50,13 @@ defineExpose({ showError })
       <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
         <IconShieldHalved class="text-rose-500 text-2xl" />
       </div>
+      
       <h2 class="text-xl font-bold text-white mb-2">Bóveda Privada</h2>
-      <p class="text-sm text-dark-muted mb-6">
+      <p v-if="!isSetup" class="text-sm text-dark-muted mb-6">
         Ingresa la contraseña maestra para desbloquear tus notas cifradas.
+      </p>
+      <p v-else class="text-sm text-rose-300 mb-6 font-medium">
+        Crea una contraseña maestra. <br>¡Si la olvidas, perderás acceso a tus notas cifradas para siempre!
       </p>
 
       <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
@@ -49,27 +66,43 @@ defineExpose({ showError })
             v-model="password"
             type="password"
             class="w-full bg-dark-bg border rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-dark-border"
-            :class="error ? 'border-rose-500' : 'border-dark-border'"
-            placeholder="Contraseña maestra"
+            :class="errorMsg ? 'border-rose-500' : 'border-dark-border'"
+            :placeholder="isSetup ? 'Nueva contraseña' : 'Contraseña maestra'"
             autocomplete="off"
             :disabled="isLoading"
             @input="handleInput"
           />
         </div>
+        
+        <div v-if="isSetup" class="relative">
+          <IconKey class="absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted" />
+          <input
+            v-model="confirmPassword"
+            type="password"
+            class="w-full bg-dark-bg border rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-dark-border"
+            :class="errorMsg ? 'border-rose-500' : 'border-dark-border'"
+            placeholder="Repetir contraseña"
+            autocomplete="off"
+            :disabled="isLoading"
+            @input="handleInput"
+          />
+        </div>
+
         <p
-          v-if="error"
+          v-if="errorMsg"
           data-testid="vault-error"
           class="text-rose-400 text-xs"
         >
-          Contraseña incorrecta. Intenta de nuevo.
+          {{ errorMsg }}
         </p>
+        
         <button
           type="submit"
           class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors text-sm font-medium shadow-lg shadow-rose-900/50 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-          :disabled="!password || isLoading"
+          :disabled="!password || (isSetup && !confirmPassword) || isLoading"
         >
           <IconSpinner v-if="isLoading" />
-          <span>{{ isLoading ? 'Desbloqueando...' : 'Desbloquear' }}</span>
+          <span>{{ isLoading ? 'Procesando...' : (isSetup ? 'Configurar Bóveda' : 'Desbloquear') }}</span>
         </button>
       </form>
 

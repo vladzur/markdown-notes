@@ -97,18 +97,40 @@ async function handleLogout() {
   await navigateTo('/login')
 }
 
+function resetVaultTimer() {
+  if (vaultStore.isUnlocked) {
+    vaultStore.resetInactivityTimer()
+  }
+}
+
 onMounted(async () => {
-  if (isAuthenticated.value && user.value?.uid && folderStore.folders.length === 0) {
+  if (isAuthenticated.value && user.value?.uid) {
     try {
-      const folders = await getUserFolders(user.value.uid)
-      const notes = await getUserNotes(user.value.uid)
-      if (folders.length > 0 || notes.length > 0) {
-        folderStore.setData(folders, notes)
+      // Cargar configuración de bóveda
+      await vaultStore.loadUserProfile(user.value.uid)
+
+      if (folderStore.folders.length === 0) {
+        const folders = await getUserFolders(user.value.uid)
+        const notes = await getUserNotes(user.value.uid)
+        if (folders.length > 0 || notes.length > 0) {
+          folderStore.setData(folders, notes)
+        }
       }
     } catch {
       // Silencioso
     }
   }
+
+  // Listeners para temporizador de inactividad de la bóveda
+  window.addEventListener('mousemove', resetVaultTimer)
+  window.addEventListener('keydown', resetVaultTimer)
+  window.addEventListener('click', resetVaultTimer)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', resetVaultTimer)
+  window.removeEventListener('keydown', resetVaultTimer)
+  window.removeEventListener('click', resetVaultTimer)
 })
 </script>
 

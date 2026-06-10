@@ -27,7 +27,7 @@ import {
   doc,
   type DocumentData,
 } from 'firebase/firestore'
-import type { FirebaseConfig, Folder, Note } from './types'
+import type { FirebaseConfig, Folder, Note, UserProfile } from './types'
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
@@ -137,6 +137,30 @@ export async function getUserNotes(userId: string): Promise<Note[]> {
   const q = query(collection(db, 'notes'), where('userId', '==', userId))
   const snapshot = await getDocs(q)
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Note))
+}
+
+/** Obtiene el perfil del usuario (o crea uno nulo localmente si no existe en BD). */
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const db = getFirebaseDb()
+  const docSnap = await getDocs(query(collection(db, 'users'), where('id', '==', userId)))
+  if (docSnap.empty) {
+    // Para simplificar, intentamos por ID de documento también (users/uid)
+    const dbDoc = await import('firebase/firestore').then(m => m.getDoc(m.doc(db, 'users', userId)))
+    if (dbDoc.exists()) {
+      return { id: dbDoc.id, ...dbDoc.data() } as UserProfile
+    }
+    return null
+  }
+  const firstDoc = docSnap.docs[0]
+  if (!firstDoc) return null
+  return { id: firstDoc.id, ...firstDoc.data() } as UserProfile
+}
+
+/** Actualiza o crea el perfil del usuario. Se guarda en el doc con ID = userId. */
+export async function updateUserProfile(userId: string, data: Partial<UserProfile>): Promise<void> {
+  const db = getFirebaseDb()
+  const { setDoc, doc } = await import('firebase/firestore')
+  await setDoc(doc(db, 'users', userId), { id: userId, ...data }, { merge: true })
 }
 
 /** Crea una carpeta en Firestore y retorna el ID generado. */
