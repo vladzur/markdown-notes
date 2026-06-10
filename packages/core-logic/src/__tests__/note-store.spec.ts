@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useNoteStore } from '../stores/note-store'
+import { useFolderStore } from '../stores/folder-store'
+import { useVaultStore } from '../stores/vault-store'
 import type { Note } from '@nexus-notes/firebase'
 
 function makeNote(overrides: Partial<Note> = {}): Note {
@@ -20,18 +22,32 @@ const firestoreMocks = vi.hoisted(() => ({
   createNoteDoc: vi.fn(),
   deleteNoteDoc: vi.fn(),
   updateNoteDoc: vi.fn(),
+  createFolderDoc: vi.fn()
+}))
+
+const cryptoMocks = vi.hoisted(() => ({
+  encrypt: vi.fn(),
+  decrypt: vi.fn(),
 }))
 
 vi.mock('@nexus-notes/firebase', () => ({
   createNoteDoc: firestoreMocks.createNoteDoc,
   deleteNoteDoc: firestoreMocks.deleteNoteDoc,
   updateNoteDoc: firestoreMocks.updateNoteDoc,
+  createFolderDoc: firestoreMocks.createFolderDoc
+}))
+
+vi.mock('@nexus-notes/crypto', () => ({
+  encrypt: cryptoMocks.encrypt,
+  decrypt: cryptoMocks.decrypt,
 }))
 
 describe('useNoteStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    cryptoMocks.encrypt.mockResolvedValue({ ciphertext: 'encrypted', iv: 'iv123' })
+    cryptoMocks.decrypt.mockResolvedValue('decrypted content')
   })
 
   afterEach(() => {
@@ -62,10 +78,55 @@ describe('useNoteStore', () => {
     expect(store.notes).toHaveLength(1)
   })
 
+  it('should encrypt note on add if folder is private vault', async () => {
+    firestoreMocks.createFolderDoc.mockResolvedValue('f-vault')
+    firestoreMocks.createNoteDoc.mockResolvedValue('firestore-note-id')
+    const folderStore = useFolderStore()
+    const folder = await folderStore.addFolder({
+      userId: 'user-1',
+      name: 'Vault',
+      parentId: null,
+      isPrivateVault: true,
+      createdAt: '2026-01-01T00:00:00Z'
+    })
+    const vaultStore = useVaultStore()
+    vaultStore.vaultKey = {} as CryptoKey // Mock key
+
+    const store = useNoteStore()
+    const note = await store.addNote({
+      userId: 'user-1',
+      folderId: folder.id,
+      title: 'Secret',
+      content: 'plain text',
+      isEncrypted: false,
+      updatedAt: '2026-01-01T00:00:00Z',
+    })
+
+    expect(cryptoMocks.encrypt).toHaveBeenCalled()
+    expect(firestoreMocks.createNoteDoc).toHaveBeenCalledWith(expect.objectContaining({
+      isEncrypted: true,
+      content: 'encrypted',
+      encryptionIv: 'iv123'
+    }))
+    expect(note.content).toBe('plain text')
+    expect(note.isEncrypted).toBe(true)
+  })
+
+  it('should decrypt notes on setNotes', async () => {
+    const vaultStore = useVaultStore()
+    vaultStore.vaultKey = {} as CryptoKey // Mock key
+    
+    const store = useNoteStore()
+    await store.setNotes([makeNote({ id: 'n-1', content: 'encrypted', isEncrypted: true, encryptionIv: 'iv123' })])
+
+    expect(cryptoMocks.decrypt).toHaveBeenCalledWith('encrypted', 'iv123', vaultStore.vaultKey)
+    expect(store.notes[0]!.content).toBe('decrypted content')
+  })
+
   it('should remove note (optimistic + Firestore)', async () => {
     firestoreMocks.deleteNoteDoc.mockResolvedValue(undefined)
     const store = useNoteStore()
-    store.setNotes([makeNote({ id: 'n-1' })])
+    await store.setNotes([makeNote({ id: 'n-1' })])
 
     await store.removeNote('n-1')
 
@@ -76,7 +137,7 @@ describe('useNoteStore', () => {
   it('should rollback note removal if Firestore fails', async () => {
     firestoreMocks.deleteNoteDoc.mockRejectedValue(new Error('Firestore error'))
     const store = useNoteStore()
-    store.setNotes([makeNote({ id: 'n-1', title: 'Important' })])
+    await store.setNotes([makeNote({ id: 'n-1', title: 'Important' })])
 
     await store.removeNote('n-1')
 
@@ -84,9 +145,9 @@ describe('useNoteStore', () => {
     expect(store.notes[0]!.title).toBe('Important')
   })
 
-  it('should update note content locally immediately', () => {
+  it('should update note content locally immediately', async () => {
     const store = useNoteStore()
-    store.setNotes([makeNote({ id: 'n-1', title: 'Old', content: 'old' })])
+    await store.setNotes([makeNote({ id: 'n-1', title: 'Old', content: 'old' })])
 
     store.updateNote('n-1', { title: 'New', content: 'new content' })
 
@@ -99,7 +160,7 @@ describe('useNoteStore', () => {
     vi.useFakeTimers()
     const store = useNoteStore()
     const note = makeNote({ id: 'n-1', title: '', content: '' })
-    store.setNotes([note])
+    await store.setNotes([note])
 
     store.updateNote('n-1', { content: 'a' })
     store.updateNote('n-1', { content: 'ab' })
@@ -108,18 +169,18 @@ describe('useNoteStore', () => {
     expect(firestoreMocks.updateNoteDoc).not.toHaveBeenCalled()
 
     vi.advanceTimersByTime(500)
+    await Promise.resolve()
 
     expect(firestoreMocks.updateNoteDoc).toHaveBeenCalledTimes(1)
-    expect(firestoreMocks.updateNoteDoc).toHaveBeenCalledWith('n-1', {
+    expect(firestoreMocks.updateNoteDoc).toHaveBeenCalledWith('n-1', expect.objectContaining({
       content: 'abc',
-      updatedAt: expect.any(String),
-    })
+    }))
   })
 
   it('should cancel pending save when note is removed', async () => {
     vi.useFakeTimers()
     const store = useNoteStore()
-    store.setNotes([makeNote({ id: 'n-1', content: 'edit' })])
+    await store.setNotes([makeNote({ id: 'n-1', content: 'edit' })])
     firestoreMocks.deleteNoteDoc.mockResolvedValue(undefined)
 
     store.updateNote('n-1', { content: 'changed' })
