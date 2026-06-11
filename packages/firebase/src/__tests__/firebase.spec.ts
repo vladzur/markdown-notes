@@ -130,7 +130,6 @@ describe('enableOfflinePersistence', () => {
     const { enableOfflinePersistence } = await import('../firebase')
     await expect(enableOfflinePersistence()).rejects.toThrow('Firestore no inicializado')
   })
-
 })
 
 describe('getters', () => {
