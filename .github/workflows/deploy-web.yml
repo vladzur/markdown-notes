@@ -48,5 +48,5 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: markdown-notes # Deberás configurar este valor o extraerlo del Service Account
+          projectId: markdown-notes-aaa3c
           channelId: live
