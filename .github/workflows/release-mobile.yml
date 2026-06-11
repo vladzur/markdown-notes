@@ -49,8 +49,8 @@ jobs:
       - name: Build Web App
         run: pnpm --filter @nexus-notes/web generate
 
-      - name: Sync Capacitor
-        run: pnpm --filter @nexus-notes/mobile exec cap sync android
+      - name: Add Android Platform
+        run: pnpm --filter @nexus-notes/mobile exec cap add android
 
       - name: Build APK
         working-directory: apps/mobile/android

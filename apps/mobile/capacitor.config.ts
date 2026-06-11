@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.nexus-notes.mobile',
+  appId: 'com.nexusnotes.mobile',
   appName: 'NexusNotes',
   webDir: '../web/.output/public',
   server: {
