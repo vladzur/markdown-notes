@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { deriveKey, generateSalt, generateValidationHash, toBase64, fromBase64 } from '@nexus-notes/crypto'
+import { deriveKey, fromBase64, generateSalt, generateValidationHash, toBase64 } from '@nexus-notes/crypto'
 import { getUserProfile, updateUserProfile } from '@nexus-notes/firebase'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 /**
  * Store volátil para la bóveda privada.
@@ -15,7 +15,7 @@ export const useVaultStore = defineStore('vault', () => {
   const vaultKey = ref<CryptoKey | null>(null)
   /** Salt del usuario cargada desde Firebase. */
   const vaultSalt = ref<Uint8Array | null>(null)
-  
+
   /** Tiempo de inactividad en ms antes de bloquear automáticamente. Por defecto 5 mins. */
   const inactivityTimeout = ref<number>(300_000)
   /** ID del timer de inactividad activo. */
@@ -28,7 +28,7 @@ export const useVaultStore = defineStore('vault', () => {
 
   const isUnlocked = computed(() => vaultKey.value !== null)
 
-  /** 
+  /**
    * Carga la configuración inicial de la bóveda desde el perfil del usuario.
    */
   async function loadUserProfile(userId: string): Promise<void> {
@@ -38,7 +38,8 @@ export const useVaultStore = defineStore('vault', () => {
       isVaultConfigured.value = true
       vaultSalt.value = fromBase64(profile.vaultSalt)
       validationHashCache.value = profile.vaultValidationHash
-    } else {
+    }
+    else {
       isVaultConfigured.value = false
     }
     isLoaded.value = true
@@ -48,19 +49,20 @@ export const useVaultStore = defineStore('vault', () => {
    * Configura la bóveda por primera vez: genera la salt, valida el hash y guarda en Firestore.
    */
   async function setupVault(password: string): Promise<boolean> {
-    if (!currentUserId.value) throw new Error('User not loaded in vault store')
+    if (!currentUserId.value)
+      throw new Error('User not loaded in vault store')
     const salt = generateSalt()
     const validationHash = await generateValidationHash(password, salt)
-    
+
     await updateUserProfile(currentUserId.value, {
       vaultSalt: toBase64(salt),
-      vaultValidationHash: validationHash
+      vaultValidationHash: validationHash,
     })
 
     isVaultConfigured.value = true
     vaultSalt.value = salt
     validationHashCache.value = validationHash
-    
+
     // Auto-desbloquear tras configurarlo
     return await unlockVault(password)
   }
@@ -86,7 +88,8 @@ export const useVaultStore = defineStore('vault', () => {
       vaultKey.value = key
       resetInactivityTimer()
       return true
-    } catch {
+    }
+    catch {
       return false
     }
   }

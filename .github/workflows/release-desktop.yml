@@ -67,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: 'Nexus Notes Desktop v__VERSION__'
+          releaseName: Nexus Notes Desktop v__VERSION__
           releaseBody: 'Para descargar la app, revisa los assets al final de esta nota.'
           releaseDraft: false
           prerelease: false

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
 import type { FirebaseConfig } from '../types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockConfig: FirebaseConfig = {
   apiKey: 'test-api-key',
@@ -148,8 +148,8 @@ describe('getters', () => {
   })
 
   it('should return instances after initialization', async () => {
-    const { initializeFirebase, getFirebaseAuth, getFirebaseDb, getFirebaseApp } =
-      await import('../firebase')
+    const { initializeFirebase, getFirebaseAuth, getFirebaseDb, getFirebaseApp }
+      = await import('../firebase')
     initializeFirebase(mockConfig)
     expect(getFirebaseAuth()).toBe(mockAuth)
     expect(getFirebaseDb()).toBe(mockDb)

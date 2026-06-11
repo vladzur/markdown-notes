@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import type { Folder, Note } from '@nexus-notes/firebase'
+import { describe, expect, it } from 'vitest'
 import { buildTree } from '../tree-builder'
 
 function makeFolder(overrides: Partial<Folder> = {}): Folder {
@@ -111,17 +111,15 @@ describe('buildTree', () => {
       makeFolder({ id: 'c', parentId: null, name: 'Gamma' }),
     ]
     const tree = buildTree(folders, [])
-    expect(tree.map((n) => n.folder.name)).toEqual(['Alpha', 'Beta', 'Gamma'])
+    expect(tree.map(n => n.folder.name)).toEqual(['Alpha', 'Beta', 'Gamma'])
   })
 
   it('should handle large flat structure efficiently', () => {
     const count = 1000
     const folders: Folder[] = Array.from({ length: count }, (_, i) =>
-      makeFolder({ id: `f-${i}`, parentId: i > 0 ? `f-${i - 1}` : null }),
-    )
+      makeFolder({ id: `f-${i}`, parentId: i > 0 ? `f-${i - 1}` : null }))
     const notes: Note[] = Array.from({ length: count }, (_, i) =>
-      makeNote({ id: `n-${i}`, folderId: `f-${i}` }),
-    )
+      makeNote({ id: `n-${i}`, folderId: `f-${i}` }))
     const tree = buildTree(folders, notes)
     // Debe haber una sola raíz, con profundidad count-1
     let node = tree[0]!

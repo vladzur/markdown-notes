@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { decrypt } from '../decrypt'
 import { deriveKey } from '../deriveKey'
 import { encrypt } from '../encrypt'
-import { decrypt } from '../decrypt'
 import { generateSalt } from '../generateSalt'
 
-describe('Encrypt and Decrypt', () => {
+describe('encrypt and Decrypt', () => {
   it('should encrypt and decrypt plain text correctly (round-trip)', async () => {
     const password = 'master-password-123'
     const originalText = '# Nota secreta\n\nContenido confidencial de la bóveda.'

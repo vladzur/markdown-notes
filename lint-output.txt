@@ -1,0 +1,20 @@
+Scope: 9 of 10 workspace projects
+packages/config lint$ eslint .
+packages/config lint: Oops! Something went wrong! :(
+packages/config lint: ESLint: 10.4.1
+packages/config lint: SyntaxError: Unexpected token ':'
+packages/config lint:     at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+packages/config lint:     at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:111:18)
+packages/config lint:     at #translate (node:internal/modules/esm/loader:473:20)
+packages/config lint:     at afterLoad (node:internal/modules/esm/loader:529:29)
+packages/config lint:     at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:534:12)
+packages/config lint:     at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:571:36)
+packages/config lint:     at afterResolve (node:internal/modules/esm/loader:624:52)
+packages/config lint:     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:630:12)
+packages/config lint:     at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:649:32)
+packages/config lint:     at TracingChannel.tracePromise (node:diagnostics_channel:350:14)
+packages/config lint: Failed
+/home/vladzur/MisProyectos/my_notes/packages/config:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @nexus-notes/config@0.0.0 lint: `eslint .`
+Exit status 2
+[WARN]  Local package.json exists, but node_modules missing, did you mean to install?

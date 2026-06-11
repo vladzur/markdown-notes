@@ -1,13 +1,14 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { marked } from 'marked'
 import TurndownService from 'turndown'
 import { gfm } from 'turndown-plugin-gfm'
+import { describe, expect, it } from 'vitest'
 import MarkdownEditor from '../components/MarkdownEditor/MarkdownEditor.vue'
 
 // ---- Helpers de conversión usados por el editor ----
 function markdownToHtml(md: string): string {
-  if (!md) return ''
+  if (!md)
+    return ''
   return marked.parse(md, { async: false }) as string
 }
 
@@ -18,7 +19,7 @@ const turndownService = new TurndownService({
 })
 turndownService.use(gfm)
 
-describe('MarkdownEditor', () => {
+describe('markdownEditor', () => {
   it('should render the editor container', () => {
     const wrapper = mount(MarkdownEditor, {
       props: { modelValue: '# Hello' },
@@ -68,7 +69,7 @@ describe('MarkdownEditor', () => {
   })
 })
 
-describe('Markdown table conversion (marked + turndown con GFM)', () => {
+describe('markdown table conversion (marked + turndown con GFM)', () => {
   it('should parse markdown tables to HTML', () => {
     const md = '| Name | Age |\n| --- | --- |\n| Alice | 30 |'
     const html = markdownToHtml(md)

@@ -9,7 +9,7 @@
 export async function encrypt(
   plainText: string,
   key: CryptoKey,
-): Promise<{ ciphertext: string; iv: string }> {
+): Promise<{ ciphertext: string, iv: string }> {
   const encoder = new TextEncoder()
   const iv = crypto.getRandomValues(new Uint8Array(12))
   const encodedData = encoder.encode(plainText)

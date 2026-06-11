@@ -1,4 +1,4 @@
-import { initializeFirebase, enableOfflinePersistence, getFirebaseAuth, onAuthStateChanged } from '@nexus-notes/firebase'
+import { enableOfflinePersistence, getFirebaseAuth, initializeFirebase, onAuthStateChanged } from '@nexus-notes/firebase'
 import { setAuthUser } from '~/composables/useAuth'
 
 export default defineNuxtPlugin(async () => {
@@ -15,7 +15,8 @@ export default defineNuxtPlugin(async () => {
 
   try {
     await enableOfflinePersistence()
-  } catch {
+  }
+  catch {
     console.warn('Persistencia offline de Firestore no disponible en este entorno.')
   }
 

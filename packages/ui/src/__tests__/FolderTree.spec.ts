@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia'
-import FolderTree from '../components/FolderTree/FolderTree.vue'
 import type { TreeNode } from '@nexus-notes/core-logic'
+import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
+import FolderTree from '../components/FolderTree/FolderTree.vue'
 
 function makeNode(overrides: Partial<TreeNode['folder']> = {}, children: TreeNode[] = [], notes: TreeNode['notes'] = []): TreeNode {
   return {
@@ -20,7 +20,7 @@ function makeNode(overrides: Partial<TreeNode['folder']> = {}, children: TreeNod
   }
 }
 
-describe('FolderTree', () => {
+describe('folderTree', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })

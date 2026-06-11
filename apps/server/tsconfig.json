@@ -1,9 +1,9 @@
 {
   "extends": "@nexus-notes/config/tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "lib": ["ES2022"],
     "rootDir": "./src",
-    "lib": ["ES2022"]
+    "outDir": "./dist"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

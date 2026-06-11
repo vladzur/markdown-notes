@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 import VaultGuard from '../components/VaultGuard/VaultGuard.vue'
 
-describe('VaultGuard', () => {
+describe('vaultGuard', () => {
   it('should render title and description', () => {
     const wrapper = mount(VaultGuard)
     expect(wrapper.text()).toContain('Bóveda Privada')

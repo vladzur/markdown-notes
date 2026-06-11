@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useNoteStore } from '../stores/note-store'
-import { useFolderStore } from '../stores/folder-store'
-import { useVaultStore } from '../stores/vault-store'
 import type { Note } from '@nexus-notes/firebase'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useFolderStore } from '../stores/folder-store'
+import { useNoteStore } from '../stores/note-store'
+import { useVaultStore } from '../stores/vault-store'
 
 function makeNote(overrides: Partial<Note> = {}): Note {
   return {
@@ -22,7 +22,7 @@ const firestoreMocks = vi.hoisted(() => ({
   createNoteDoc: vi.fn(),
   deleteNoteDoc: vi.fn(),
   updateNoteDoc: vi.fn(),
-  createFolderDoc: vi.fn()
+  createFolderDoc: vi.fn(),
 }))
 
 const cryptoMocks = vi.hoisted(() => ({
@@ -34,7 +34,7 @@ vi.mock('@nexus-notes/firebase', () => ({
   createNoteDoc: firestoreMocks.createNoteDoc,
   deleteNoteDoc: firestoreMocks.deleteNoteDoc,
   updateNoteDoc: firestoreMocks.updateNoteDoc,
-  createFolderDoc: firestoreMocks.createFolderDoc
+  createFolderDoc: firestoreMocks.createFolderDoc,
 }))
 
 vi.mock('@nexus-notes/crypto', () => ({
@@ -87,7 +87,7 @@ describe('useNoteStore', () => {
       name: 'Vault',
       parentId: null,
       isPrivateVault: true,
-      createdAt: '2026-01-01T00:00:00Z'
+      createdAt: '2026-01-01T00:00:00Z',
     })
     const vaultStore = useVaultStore()
     vaultStore.vaultKey = {} as CryptoKey // Mock key
@@ -106,7 +106,7 @@ describe('useNoteStore', () => {
     expect(firestoreMocks.createNoteDoc).toHaveBeenCalledWith(expect.objectContaining({
       isEncrypted: true,
       content: 'encrypted',
-      encryptionIv: 'iv123'
+      encryptionIv: 'iv123',
     }))
     expect(note.content).toBe('plain text')
     expect(note.isEncrypted).toBe(true)
@@ -115,7 +115,7 @@ describe('useNoteStore', () => {
   it('should decrypt notes on setNotes', async () => {
     const vaultStore = useVaultStore()
     vaultStore.vaultKey = {} as CryptoKey // Mock key
-    
+
     const store = useNoteStore()
     await store.setNotes([makeNote({ id: 'n-1', content: 'encrypted', isEncrypted: true, encryptionIv: 'iv123' })])
 

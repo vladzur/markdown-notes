@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { useFolderStore, useVaultStore, useNoteStore } from '@nexus-notes/core-logic'
+import { useFolderStore, useNoteStore, useVaultStore } from '@nexus-notes/core-logic'
 import { getUserFolders, getUserNotes } from '@nexus-notes/firebase'
-import { useAuth, logout } from '~/composables/useAuth'
-import FolderTree from '@nexus-notes/ui/src/components/FolderTree/FolderTree.vue'
 import ConfirmDialog from '@nexus-notes/ui/src/components/ConfirmDialog/ConfirmDialog.vue'
+import FolderTree from '@nexus-notes/ui/src/components/FolderTree/FolderTree.vue'
 import {
-  IconPenNib,
-  IconFolderPlus,
-  IconSearch,
-  IconXmark,
   IconBars,
-  IconShareNodes,
+  IconChevronRight,
+  IconFolderPlus,
   IconGear,
   IconLock,
   IconLockOpen,
-  IconChevronRight,
+  IconPenNib,
+  IconSearch,
+  IconShareNodes,
+  IconXmark,
 } from '@nexus-notes/ui/src/icons'
+import { logout, useAuth } from '~/composables/useAuth'
 
 const folderStore = useFolderStore()
 const noteStore = useNoteStore()
@@ -32,7 +32,7 @@ const currentNoteId = computed(() => (route.query.note as string) || null)
 
 // Breadcrumbs computados
 const breadcrumbs = computed(() => {
-  const crumbs: { id: string; name: string }[] = []
+  const crumbs: { id: string, name: string }[] = []
   const folderId = route.params.folderId as string | undefined
   if (folderId) {
     const folder = folderStore.folders.find(f => f.id === folderId)
@@ -62,7 +62,8 @@ function handleSelectNote(noteId: string, folderId: string) {
 }
 
 async function handleCreateFolder(parentId: string | null) {
-  if (!user.value?.uid) return
+  if (!user.value?.uid)
+    return
   const name = window.prompt('Nombre de la carpeta:')
   if (name && name.trim()) {
     await folderStore.addFolder({
@@ -114,7 +115,8 @@ onMounted(async () => {
         try {
           await vaultStore.loadUserProfile(uid)
           console.log('user profile loaded')
-        } catch (e) {
+        }
+        catch (e) {
           console.error('Error loading user profile (vault):', e)
         }
 
@@ -128,15 +130,17 @@ onMounted(async () => {
               folderStore.setData(folders, notes)
               console.log('Set data in store')
             }
-          } else {
-             console.log('folders already exist in store')
           }
-        } catch (e) {
+          else {
+            console.log('folders already exist in store')
+          }
+        }
+        catch (e) {
           console.error('Error fetching folders/notes:', e)
         }
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   // Listeners para temporizador de inactividad de la bóveda

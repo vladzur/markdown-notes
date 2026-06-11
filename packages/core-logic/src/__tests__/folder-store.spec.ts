@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+import type { Folder, Note } from '@nexus-notes/firebase'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useFolderStore } from '../stores/folder-store'
 import { useNoteStore } from '../stores/note-store'
-import type { Folder, Note } from '@nexus-notes/firebase'
 
 function makeFolder(overrides: Partial<Folder> = {}): Folder {
   return {
@@ -100,7 +100,6 @@ describe('useFolderStore', () => {
         makeNote({ id: 'n-other', folderId: 'keep' }),
       ],
     )
-
 
     await store.removeFolder('to-remove')
 
