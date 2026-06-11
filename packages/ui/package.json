@@ -1,8 +1,8 @@
 {
   "name": "@nexus-notes/ui",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@nexus-notes/core-logic": "workspace:*",
-    "@tiptap/extension-table": "^3.23.6",
     "@tiptap/extension-link": "^3.23.6",
     "@tiptap/extension-placeholder": "^3.23.6",
+    "@tiptap/extension-table": "^3.23.6",
     "@tiptap/extension-underline": "^3.23.6",
     "@tiptap/pm": "^3.23.6",
     "@tiptap/starter-kit": "^3.23.6",

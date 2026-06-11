@@ -1,13 +1,13 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
 import type { Folder, Note } from '@nexus-notes/firebase'
+import type { TreeNode } from '../types'
 import {
   createFolderDoc,
   deleteFolderDoc,
   deleteNoteDoc,
   updateFolderDoc,
 } from '@nexus-notes/firebase'
-import type { TreeNode } from '../types'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import { buildTree } from '../tree-builder'
 import { useNoteStore } from './note-store'
 
@@ -23,7 +23,8 @@ export const useFolderStore = defineStore('folders', () => {
 
   /** Notas de la carpeta actualmente seleccionada. */
   const currentNotes = computed<Note[]>(() => {
-    if (!currentFolderId.value) return []
+    if (!currentFolderId.value)
+      return []
     return noteStore.getNotesByFolderId(currentFolderId.value)
   })
 
@@ -44,11 +45,11 @@ export const useFolderStore = defineStore('folders', () => {
   /** Elimina una carpeta y sus notas asociadas de Firestore y del estado local. */
   async function removeFolder(folderId: string): Promise<void> {
     // Snapshot para rollback en caso de error
-    const removedFolders = folders.value.filter((f) => f.id === folderId)
+    const removedFolders = folders.value.filter(f => f.id === folderId)
     const wasSelected = currentFolderId.value === folderId
 
     // Optimistic: eliminar del estado local inmediatamente
-    folders.value = folders.value.filter((f) => f.id !== folderId)
+    folders.value = folders.value.filter(f => f.id !== folderId)
     if (wasSelected) {
       currentFolderId.value = null
     }
@@ -62,7 +63,8 @@ export const useFolderStore = defineStore('folders', () => {
         await deleteNoteDoc(noteId)
       }
       await deleteFolderDoc(folderId)
-    } catch (e) {
+    }
+    catch (e) {
       // Rollback
       folders.value.push(...removedFolders)
       if (wasSelected) {
@@ -77,8 +79,9 @@ export const useFolderStore = defineStore('folders', () => {
     folderId: string,
     updates: Partial<Pick<Folder, 'name' | 'parentId'>>,
   ): Promise<void> {
-    const index = folders.value.findIndex((f) => f.id === folderId)
-    if (index === -1) return
+    const index = folders.value.findIndex(f => f.id === folderId)
+    if (index === -1)
+      return
 
     const previous = { ...folders.value[index]! }
 
@@ -87,14 +90,13 @@ export const useFolderStore = defineStore('folders', () => {
 
     try {
       await updateFolderDoc(folderId, updates)
-    } catch (e) {
+    }
+    catch (e) {
       // Rollback
       folders.value[index] = previous
       console.error('Error al actualizar carpeta en Firestore:', e)
     }
   }
-
-
 
   function selectFolder(folderId: string | null): void {
     currentFolderId.value = folderId

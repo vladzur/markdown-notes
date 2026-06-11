@@ -1,34 +1,36 @@
-import { initializeApp, type FirebaseApp } from 'firebase/app'
+import type { FirebaseApp } from 'firebase/app'
+import type { Auth, UserCredential } from 'firebase/auth'
+import type { DocumentData, Firestore } from 'firebase/firestore'
+import type { FirebaseConfig, Folder, Note, UserProfile } from './types'
+import { initializeApp } from 'firebase/app'
 import {
-  getAuth,
-  type Auth,
-  connectAuthEmulator,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  type UserCredential,
-} from 'firebase/auth'
 
-export { onAuthStateChanged, type User } from 'firebase/auth'
+  connectAuthEmulator,
+  createUserWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+
+} from 'firebase/auth'
 import {
+  addDoc,
+  collection,
+  connectFirestoreEmulator,
+  deleteDoc,
+  doc,
+
+  getDocs,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
-  type Firestore,
-  connectFirestoreEmulator,
-  collection,
   query,
-  where,
-  getDocs,
-  addDoc,
   updateDoc,
-  deleteDoc,
-  doc,
-  type DocumentData,
+  where,
 } from 'firebase/firestore'
-import type { FirebaseConfig, Folder, Note, UserProfile } from './types'
+
+export { onAuthStateChanged, type User } from 'firebase/auth'
 
 let app: FirebaseApp | null = null
 let auth: Auth | null = null
@@ -48,10 +50,10 @@ export function initializeFirebase(config: FirebaseConfig, useEmulators = false)
 
   app = initializeApp(config)
   auth = getAuth(app)
-  
+
   // Usar persistentLocalCache en lugar de enableIndexedDbPersistence
   db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   })
 
   if (useEmulators) {
@@ -132,7 +134,7 @@ export async function getUserFolders(userId: string): Promise<Folder[]> {
   const db = getFirebaseDb()
   const q = query(collection(db, 'folders'), where('userId', '==', userId))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Folder))
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Folder))
 }
 
 /** Obtiene todas las notas de un usuario. */
@@ -140,7 +142,7 @@ export async function getUserNotes(userId: string): Promise<Note[]> {
   const db = getFirebaseDb()
   const q = query(collection(db, 'notes'), where('userId', '==', userId))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Note))
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Note))
 }
 
 /** Obtiene el perfil del usuario (o crea uno nulo localmente si no existe en BD). */

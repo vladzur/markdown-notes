@@ -1,14 +1,14 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
 import type { Note } from '@nexus-notes/firebase'
+import { decrypt, encrypt } from '@nexus-notes/crypto'
 import {
   createNoteDoc,
   deleteNoteDoc,
   updateNoteDoc,
 } from '@nexus-notes/firebase'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 import { useFolderStore } from './folder-store'
 import { useVaultStore } from './vault-store'
-import { encrypt, decrypt } from '@nexus-notes/crypto'
 
 /** Tiempo de espera (ms) para consolidar escrituras frecuentes de contenido. */
 const NOTE_SAVE_DEBOUNCE_MS = 500
@@ -32,20 +32,21 @@ export const useNoteStore = defineStore('notes', () => {
 
   async function setNotes(fetchedNotes: Note[]): Promise<void> {
     const vaultStore = useVaultStore()
-    
+
     const decryptedNotes = await Promise.all(fetchedNotes.map(async (n) => {
       if (n.isEncrypted && n.encryptionIv && vaultStore.vaultKey) {
         try {
           const plainContent = await decrypt(n.content, n.encryptionIv, vaultStore.vaultKey)
           return { ...n, content: plainContent }
-        } catch (e) {
+        }
+        catch (e) {
           console.error(`Error descifrando la nota ${n.id}`, e)
           return n
         }
       }
       return n
     }))
-    
+
     notes.value = decryptedNotes
   }
 
@@ -70,11 +71,11 @@ export const useNoteStore = defineStore('notes', () => {
 
   /** Elimina una nota de Firestore y del estado local. */
   async function removeNote(noteId: string): Promise<void> {
-    const removedNote = notes.value.find((n) => n.id === noteId)
+    const removedNote = notes.value.find(n => n.id === noteId)
     const wasSelected = currentNoteId.value === noteId
 
     // Optimistic
-    notes.value = notes.value.filter((n) => n.id !== noteId)
+    notes.value = notes.value.filter(n => n.id !== noteId)
     if (wasSelected) {
       currentNoteId.value = null
     }
@@ -82,7 +83,8 @@ export const useNoteStore = defineStore('notes', () => {
 
     try {
       await deleteNoteDoc(noteId)
-    } catch (e) {
+    }
+    catch (e) {
       // Rollback
       if (removedNote) {
         notes.value.push(removedNote)
@@ -96,8 +98,9 @@ export const useNoteStore = defineStore('notes', () => {
 
   /** Actualiza una nota en el estado local y agenda la persistencia a Firestore. */
   function updateNote(noteId: string, updates: Partial<Pick<Note, 'title' | 'content'>>): void {
-    const index = notes.value.findIndex((n) => n.id === noteId)
-    if (index === -1) return
+    const index = notes.value.findIndex(n => n.id === noteId)
+    if (index === -1)
+      return
 
     const note = notes.value[index]!
     notes.value[index] = { ...note, ...updates }
@@ -122,7 +125,8 @@ export const useNoteStore = defineStore('notes', () => {
         }
 
         await updateNoteDoc(noteId, savePayload)
-      } catch (e) {
+      }
+      catch (e) {
         console.error('Error al persistir nota en Firestore:', e)
       }
     }, NOTE_SAVE_DEBOUNCE_MS)
@@ -150,11 +154,11 @@ export const useNoteStore = defineStore('notes', () => {
   function removeNotesByFolderId(folderId: string): string[] {
     const notesToRemove = notes.value.filter(n => n.folderId === folderId)
     const idsToRemove = notesToRemove.map(n => n.id)
-    
+
     if (currentNoteId.value && idsToRemove.includes(currentNoteId.value)) {
       currentNoteId.value = null
     }
-    
+
     notes.value = notes.value.filter(n => n.folderId !== folderId)
     return idsToRemove
   }

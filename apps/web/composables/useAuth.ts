@@ -1,11 +1,12 @@
-import { ref, computed, readonly } from 'vue'
+import type { User } from '@nexus-notes/firebase'
 import {
   signInWithEmail,
-  signUpWithEmail,
   signInWithGoogle,
   signOutUser,
-  type User,
+  signUpWithEmail,
+
 } from '@nexus-notes/firebase'
+import { computed, readonly, ref } from 'vue'
 
 /** Datos mínimos del usuario en el estado reactivo. */
 export interface AuthUser {
@@ -22,7 +23,8 @@ const isAuthenticated = computed(() => user.value !== null)
 
 /** Mapea un User de Firebase al shape local. */
 function mapUser(firebaseUser: User | null): AuthUser | null {
-  if (!firebaseUser) return null
+  if (!firebaseUser)
+    return null
   return {
     uid: firebaseUser.uid,
     email: firebaseUser.email,

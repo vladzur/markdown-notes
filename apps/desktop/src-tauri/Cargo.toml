@@ -2,21 +2,25 @@
 name = "nexus-notes-desktop"
 version = "0.0.0"
 description = "Desktop client for NexusNotes - Markdown Vault"
-authors = ["vladzur"]
+authors = [ "vladzur" ]
 edition = "2021"
 
 [lib]
 name = "nexus_notes_desktop_lib"
-crate-type = ["lib", "cdylib", "staticlib"]
+crate-type = [
+  "lib",
+  "cdylib",
+  "staticlib"
+]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
-serde = { version = "1", features = ["derive"] }
+serde = { version = "1", features = [ "derive" ] }
 serde_json = "1"
 
 [features]
-default = ["custom-protocol"]
-custom-protocol = ["tauri/custom-protocol"]
+default = [ "custom-protocol" ]
+custom-protocol = [ "tauri/custom-protocol" ]

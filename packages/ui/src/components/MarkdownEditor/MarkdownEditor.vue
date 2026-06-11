@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { useEditor, EditorContent } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import { TableKit } from '@tiptap/extension-table/kit'
 import PlaceholderExtension from '@tiptap/extension-placeholder'
+import { TableKit } from '@tiptap/extension-table/kit'
+import StarterKit from '@tiptap/starter-kit'
+import { EditorContent, useEditor } from '@tiptap/vue-3'
 import { marked } from 'marked'
 import TurndownService from 'turndown'
 import { gfm } from 'turndown-plugin-gfm'
 import { watch } from 'vue'
-import ToolbarButton from './ToolbarButton.vue'
 import {
-  IconBold,
-  IconItalic,
-  IconUnderline,
-  IconListUl,
-  IconListOl,
-  IconCode,
   IconBlockquote,
+  IconBold,
+  IconCode,
+  IconItalic,
   IconLink,
+  IconListOl,
+  IconListUl,
+  IconUnderline,
 } from '../../icons'
+import ToolbarButton from './ToolbarButton.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -46,7 +46,8 @@ const turndownService = new TurndownService({
 turndownService.use(gfm)
 
 function markdownToHtml(md: string): string {
-  if (!md) return ''
+  if (!md)
+    return ''
   return marked.parse(md, { async: false }) as string
 }
 
@@ -82,9 +83,11 @@ const editor = useEditor({
     },
   },
   onUpdate: () => {
-    if (emitTimer) clearTimeout(emitTimer)
+    if (emitTimer)
+      clearTimeout(emitTimer)
     emitTimer = setTimeout(() => {
-      if (!editor.value) return
+      if (!editor.value)
+        return
       emit('update:modelValue', turndownService.turndown(editor.value.getHTML()))
     }, EMIT_DEBOUNCE_MS)
   },
@@ -94,7 +97,8 @@ const editor = useEditor({
 watch(
   () => props.modelValue,
   (newVal) => {
-    if (!editor.value) return
+    if (!editor.value)
+      return
     const currentMd = turndownService.turndown(editor.value.getHTML())
     if (newVal !== currentMd) {
       editor.value.commands.setContent(markdownToHtml(newVal))
@@ -105,15 +109,17 @@ watch(
 // Sincronizar readonly
 watch(
   () => props.readonly,
-  (val) => editor.value?.setEditable(!val),
+  val => editor.value?.setEditable(!val),
 )
 
 // ---- Acciones de toolbar ----
 function setLink(): void {
-  if (!editor.value) return
+  if (!editor.value)
+    return
   const prev = editor.value.getAttributes('link').href as string | undefined
   const url = globalThis.prompt('URL:', prev ?? 'https://')
-  if (url === null) return
+  if (url === null)
+    return
   if (url === '') {
     editor.value.chain().focus().extendMarkRange('link').unsetLink().run()
     return

@@ -1,13 +1,12 @@
 {
   "name": "@nexus-notes/desktop",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@nexus-notes/web": "workspace:*",

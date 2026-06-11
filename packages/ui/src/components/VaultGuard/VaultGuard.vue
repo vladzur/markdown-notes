@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { IconShieldHalved, IconKey, IconSpinner } from '../../icons'
+import { computed, ref } from 'vue'
+import { IconKey, IconShieldHalved, IconSpinner } from '../../icons'
 
 const props = defineProps<{
   isConfigured: boolean
@@ -18,12 +18,13 @@ const isLoading = ref(false)
 const isSetup = computed(() => !props.isConfigured)
 
 async function handleSubmit() {
-  if (!password.value) return
+  if (!password.value)
+    return
   if (isSetup.value && password.value !== confirmPassword.value) {
     errorMsg.value = 'Las contraseñas no coinciden.'
     return
   }
-  
+
   isLoading.value = true
   errorMsg.value = ''
   emit('submit', password.value)
@@ -50,8 +51,10 @@ defineExpose({ showError })
       <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
         <IconShieldHalved class="text-rose-500 text-2xl" />
       </div>
-      
-      <h2 class="text-xl font-bold text-white mb-2">Bóveda Privada</h2>
+
+      <h2 class="text-xl font-bold text-white mb-2">
+        Bóveda Privada
+      </h2>
       <p v-if="!isSetup" class="text-sm text-dark-muted mb-6">
         Ingresa la contraseña maestra para desbloquear tus notas cifradas.
       </p>
@@ -71,9 +74,9 @@ defineExpose({ showError })
             autocomplete="off"
             :disabled="isLoading"
             @input="handleInput"
-          />
+          >
         </div>
-        
+
         <div v-if="isSetup" class="relative">
           <IconKey class="absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted" />
           <input
@@ -85,7 +88,7 @@ defineExpose({ showError })
             autocomplete="off"
             :disabled="isLoading"
             @input="handleInput"
-          />
+          >
         </div>
 
         <p
@@ -95,7 +98,7 @@ defineExpose({ showError })
         >
           {{ errorMsg }}
         </p>
-        
+
         <button
           type="submit"
           class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors text-sm font-medium shadow-lg shadow-rose-900/50 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"

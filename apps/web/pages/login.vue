@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { loginWithEmail, registerWithEmail, loginWithGoogle, useAuth } from '~/composables/useAuth'
+import { loginWithEmail, loginWithGoogle, registerWithEmail, useAuth } from '~/composables/useAuth'
 
 definePageMeta({
   middleware: 'guest',
@@ -22,13 +22,16 @@ async function handleSubmit() {
   try {
     if (isLogin.value) {
       await loginWithEmail(email.value, password.value)
-    } else {
+    }
+    else {
       await registerWithEmail(email.value, password.value)
     }
     await navigateTo('/folders')
-  } catch (err: any) {
+  }
+  catch (err: any) {
     error.value = mapAuthError(err.code)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
@@ -39,9 +42,11 @@ async function handleGoogleLogin() {
   try {
     await loginWithGoogle()
     await navigateTo('/folders')
-  } catch (err: any) {
+  }
+  catch (err: any) {
     error.value = mapAuthError(err.code)
-  } finally {
+  }
+  finally {
     isLoading.value = false
   }
 }
@@ -66,11 +71,17 @@ function mapAuthError(code: string): string {
 
 <template>
   <div class="bg-dark-sidebar border border-dark-border rounded-xl shadow-2xl p-10 max-w-sm w-full text-center">
-    <h1 class="text-3xl font-extrabold text-white mb-1">Notes</h1>
-    <p class="text-sm text-dark-muted mb-7">Gestión de notas Markdown cifradas</p>
+    <h1 class="text-3xl font-extrabold text-white mb-1">
+      Notes
+    </h1>
+    <p class="text-sm text-dark-muted mb-7">
+      Gestión de notas Markdown cifradas
+    </p>
 
     <!-- Spinner mientras se resuelve la sesión persistida -->
-    <div v-if="!isAuthReady" class="text-dark-muted text-sm py-5">Verificando sesión...</div>
+    <div v-if="!isAuthReady" class="text-dark-muted text-sm py-5">
+      Verificando sesión...
+    </div>
 
     <template v-else>
       <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
@@ -81,7 +92,7 @@ function mapAuthError(code: string): string {
           placeholder="Correo electrónico"
           required
           autocomplete="email"
-        />
+        >
         <input
           v-model="password"
           type="password"
@@ -89,9 +100,11 @@ function mapAuthError(code: string): string {
           placeholder="Contraseña"
           required
           autocomplete="current-password"
-        />
+        >
 
-        <p v-if="error" class="text-red-400 text-sm">{{ error }}</p>
+        <p v-if="error" class="text-red-400 text-sm">
+          {{ error }}
+        </p>
 
         <button
           type="submit"

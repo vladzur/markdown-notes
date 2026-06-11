@@ -32,7 +32,8 @@ export function buildTree(folders: Folder[], notes: Note[]): TreeNode[] {
     const node = nodeMap.get(folder.id)!
     if (folder.parentId && nodeMap.has(folder.parentId)) {
       nodeMap.get(folder.parentId)!.children.push(node)
-    } else {
+    }
+    else {
       roots.push(node)
     }
   }

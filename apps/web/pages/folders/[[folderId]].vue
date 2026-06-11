@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFolderStore, useNoteStore } from '@nexus-notes/core-logic'
-import { useAuth } from '~/composables/useAuth'
 import MarkdownEditor from '@nexus-notes/ui/src/components/MarkdownEditor/MarkdownEditor.vue'
+import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({
   middleware: 'auth',
@@ -22,8 +22,9 @@ watchEffect(() => {
 const selectedNoteId = computed(() => (route.query.note as string) || null)
 
 const selectedNote = computed(() => {
-  if (!selectedNoteId.value) return null
-  return noteStore.notes.find((n) => n.id === selectedNoteId.value) ?? null
+  if (!selectedNoteId.value)
+    return null
+  return noteStore.notes.find(n => n.id === selectedNoteId.value) ?? null
 })
 
 const noteTitle = computed({
@@ -45,8 +46,10 @@ const noteContent = computed({
 })
 
 async function handleCreateNote() {
-  if (!folderStore.currentFolderId) return
-  if (!user.value?.uid) return
+  if (!folderStore.currentFolderId)
+    return
+  if (!user.value?.uid)
+    return
   const note = await noteStore.addNote({
     userId: user.value.uid,
     folderId: folderStore.currentFolderId,
@@ -86,7 +89,7 @@ async function handleCreateNote() {
             type="text"
             class="w-full bg-transparent text-3xl font-bold text-white placeholder-dark-border outline-none border-none mb-6 font-sans"
             placeholder="Título de la nota"
-          />
+          >
           <MarkdownEditor
             v-model="noteContent"
             placeholder="Escribe tu nota en Markdown..."

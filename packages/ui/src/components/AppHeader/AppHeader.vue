@@ -2,7 +2,7 @@
 import { IconBars, IconLock, IconLockOpen } from '../../icons'
 
 defineProps<{
-  breadcrumbs?: { id: string; name: string }[]
+  breadcrumbs?: { id: string, name: string }[]
   isVaultUnlocked?: boolean
 }>()
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{
       <div v-if="breadcrumbs && breadcrumbs.length > 0" class="text-sm text-dark-muted flex items-center gap-2">
         <template v-for="(crumb, i) in breadcrumbs" :key="crumb.id">
           <span v-if="i > 0" class="text-[10px] opacity-50">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3"><path d="m9 18 6-6-6-6"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3"><path d="m9 18 6-6-6-6" /></svg>
           </span>
           <span :class="{ 'text-white font-medium': i === breadcrumbs.length - 1 }">{{ crumb.name }}</span>
         </template>

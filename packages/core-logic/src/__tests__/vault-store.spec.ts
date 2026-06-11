@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useVaultStore } from '../stores/vault-store'
 import * as firebaseMod from '@nexus-notes/firebase'
+import { createPinia, setActivePinia } from 'pinia'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useVaultStore } from '../stores/vault-store'
 
 // Mocks
 vi.mock('@nexus-notes/firebase', () => ({
@@ -31,9 +31,9 @@ describe('useVaultStore', () => {
     // Mock user
     vi.mocked(firebaseMod.getUserProfile).mockResolvedValue(null)
     await store.loadUserProfile('user123')
-    
+
     expect(store.isVaultConfigured).toBe(false)
-    
+
     const result = await store.setupVault('password')
     expect(result).toBe(true)
     expect(store.isVaultConfigured).toBe(true)
@@ -45,10 +45,10 @@ describe('useVaultStore', () => {
     const store = useVaultStore()
     vi.mocked(firebaseMod.getUserProfile).mockResolvedValue(null)
     await store.loadUserProfile('user123')
-    
+
     await store.setupVault('password')
     store.lockVault()
-    
+
     const result = await store.unlockVault('wrong-password')
     expect(result).toBe(false)
     expect(store.isUnlocked).toBe(false)
