@@ -4,36 +4,36 @@ import VaultGuard from '../components/VaultGuard/VaultGuard.vue'
 
 describe('vaultGuard', () => {
   it('should render title and description', () => {
-    const wrapper = mount(VaultGuard)
+    const wrapper = mount(VaultGuard, { props: { isConfigured: true } })
     expect(wrapper.text()).toContain('Bóveda Privada')
     expect(wrapper.text()).toContain('contraseña maestra')
   })
 
   it('should emit unlock with password on submit', async () => {
-    const wrapper = mount(VaultGuard)
+    const wrapper = mount(VaultGuard, { props: { isConfigured: true } })
     const input = wrapper.find('input')
     await input.setValue('my-secret-password')
     await wrapper.find('form').trigger('submit')
 
-    expect(wrapper.emitted('unlock')).toBeTruthy()
-    expect(wrapper.emitted('unlock')![0]).toEqual(['my-secret-password'])
+    expect(wrapper.emitted('submit')).toBeTruthy()
+    expect(wrapper.emitted('submit')![0]).toEqual(['my-secret-password'])
   })
 
   it('should disable button when password is empty', () => {
-    const wrapper = mount(VaultGuard)
+    const wrapper = mount(VaultGuard, { props: { isConfigured: true } })
     const button = wrapper.find('button')
     expect(button.attributes('disabled')).toBeDefined()
   })
 
   it('should enable button when password is entered', async () => {
-    const wrapper = mount(VaultGuard)
+    const wrapper = mount(VaultGuard, { props: { isConfigured: true } })
     await wrapper.find('input').setValue('test')
     const button = wrapper.find('button')
     expect(button.attributes('disabled')).toBeUndefined()
   })
 
   it('should show error via showError method', async () => {
-    const wrapper = mount(VaultGuard)
+    const wrapper = mount(VaultGuard, { props: { isConfigured: true } })
     expect(wrapper.find('[data-testid="vault-error"]').exists()).toBe(false)
 
     // Método expuesto por defineExpose
