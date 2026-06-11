@@ -19,6 +19,9 @@ const mocks = vi.hoisted(() => ({
   initializeApp: vi.fn(),
   getAuth: vi.fn(),
   getFirestore: vi.fn(),
+  initializeFirestore: vi.fn(),
+  persistentLocalCache: vi.fn(),
+  persistentMultipleTabManager: vi.fn(),
   connectAuthEmulator: vi.fn(),
   connectFirestoreEmulator: vi.fn(),
   enableIndexedDbPersistence: vi.fn(),
@@ -53,6 +56,9 @@ vi.mock('firebase/auth', () => ({
 
 vi.mock('firebase/firestore', () => ({
   getFirestore: mocks.getFirestore,
+  initializeFirestore: mocks.initializeFirestore,
+  persistentLocalCache: mocks.persistentLocalCache,
+  persistentMultipleTabManager: mocks.persistentMultipleTabManager,
   connectFirestoreEmulator: mocks.connectFirestoreEmulator,
   enableIndexedDbPersistence: mocks.enableIndexedDbPersistence,
   collection: mocks.collection,
@@ -72,6 +78,7 @@ describe('initializeFirebase', () => {
     mocks.initializeApp.mockReturnValue(mockApp)
     mocks.getAuth.mockReturnValue(mockAuth)
     mocks.getFirestore.mockReturnValue(mockDb)
+    mocks.initializeFirestore.mockReturnValue(mockDb)
   })
 
   it('should initialize Firebase App with provided config', async () => {
@@ -84,7 +91,7 @@ describe('initializeFirebase', () => {
     const { initializeFirebase } = await import('../firebase')
     initializeFirebase(mockConfig)
     expect(mocks.getAuth).toHaveBeenCalledTimes(1)
-    expect(mocks.getFirestore).toHaveBeenCalledTimes(1)
+    expect(mocks.initializeFirestore).toHaveBeenCalledTimes(1)
   })
 
   it('should not reinitialize if already initialized', async () => {
@@ -116,6 +123,7 @@ describe('enableOfflinePersistence', () => {
     mocks.initializeApp.mockReturnValue(mockApp)
     mocks.getAuth.mockReturnValue(mockAuth)
     mocks.getFirestore.mockReturnValue(mockDb)
+    mocks.initializeFirestore.mockReturnValue(mockDb)
   })
 
   it('should throw if Firestore is not initialized', async () => {
@@ -123,12 +131,6 @@ describe('enableOfflinePersistence', () => {
     await expect(enableOfflinePersistence()).rejects.toThrow('Firestore no inicializado')
   })
 
-  it('should enable IndexedDB persistence when Firestore is initialized', async () => {
-    const { initializeFirebase, enableOfflinePersistence } = await import('../firebase')
-    initializeFirebase(mockConfig)
-    await enableOfflinePersistence()
-    expect(mocks.enableIndexedDbPersistence).toHaveBeenCalled()
-  })
 })
 
 describe('getters', () => {
@@ -138,6 +140,7 @@ describe('getters', () => {
     mocks.initializeApp.mockReturnValue(mockApp)
     mocks.getAuth.mockReturnValue(mockAuth)
     mocks.getFirestore.mockReturnValue(mockDb)
+    mocks.initializeFirestore.mockReturnValue(mockDb)
   })
 
   it('should throw if getters called before initialization', async () => {
@@ -164,6 +167,7 @@ describe('auth helpers', () => {
     mocks.initializeApp.mockReturnValue(mockApp)
     mocks.getAuth.mockReturnValue(mockAuth)
     mocks.getFirestore.mockReturnValue(mockDb)
+    mocks.initializeFirestore.mockReturnValue(mockDb)
   })
 
   it('signUpWithEmail should call createUserWithEmailAndPassword', async () => {
@@ -209,6 +213,7 @@ describe('firestore helpers', () => {
     mocks.initializeApp.mockReturnValue(mockApp)
     mocks.getAuth.mockReturnValue(mockAuth)
     mocks.getFirestore.mockReturnValue(mockDb)
+    mocks.initializeFirestore.mockReturnValue(mockDb)
   })
 
   it('getUserFolders should query by userId', async () => {
