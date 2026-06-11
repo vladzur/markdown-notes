@@ -8,8 +8,7 @@
     "build": "[ -f ../web/.output/public/index.html ] || pnpm --filter @nexus-notes/web generate; npx cap sync",
     "add:android": "npx cap add android",
     "add:ios": "npx cap add ios",
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@capacitor/core": "^6.0.0",

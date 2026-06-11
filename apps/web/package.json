@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "nuxt prepare && tsc --noEmit"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
